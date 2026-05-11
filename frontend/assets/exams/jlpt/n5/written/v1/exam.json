@@ -1,0 +1,39 @@
+﻿{
+    "exam_id":  "jlpt-n5",
+    "title":  "Simulasi JLPT N5",
+    "questions":  [
+                      {
+                          "id":  1,
+                          "question":  "Apa bahasa Jepang dari \u0027makan\u0027?",
+                          "options":  [
+                                          "Nomu",
+                                          "Taberu",
+                                          "Iku",
+                                          "Miru"
+                                      ],
+                          "answer":  "Taberu"
+                      },
+                      {
+                          "id":  2,
+                          "question":  "Pilih partikel yang tepat: Watashi wa gakusei ___ desu.",
+                          "options":  [
+                                          "ga",
+                                          "wa",
+                                          "ni",
+                                          "no"
+                                      ],
+                          "answer":  "wa"
+                      },
+                      {
+                          "id":  3,
+                          "question":  "Bahasa Jepang dari \u0027Air\u0027 adalah...",
+                          "options":  [
+                                          "Mizu",
+                                          "Kawa",
+                                          "Yama",
+                                          "Sora"
+                                      ],
+                          "answer":  "Mizu"
+                      }
+                  ]
+}

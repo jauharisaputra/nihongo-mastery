@@ -1,0 +1,108 @@
+{
+    "level": "jtest-de",
+    "version": "v1-lite",
+    "mode": "written",
+    "duration": 3600,
+    "totalQuestions": 20,
+    "sections": [{
+            "name": "文法・語彙",
+            "intro": "<p>最もよいものを選んでください。</p>",
+            "startNo": 1,
+            "endNo": 5,
+            "questions": [{
+                    "no": 1,
+                    "type": "text-choice",
+                    "content": "この文は___です。",
+                    "options": ["正しい", "間違っている", "わからない", "どちらでもない"],
+                    "answer": "0" // STRING, bukan number
+                },
+                {
+                    "no": 2,
+                    "type": "text-choice",
+                    "content": "「食べる」の過去形は何ですか？",
+                    "options": ["食べます", "食べた", "食べている", "食べない"],
+                    "answer": "1"
+                },
+                // ... dst
+            ]
+        },
+        {
+            "name": "読解",
+            "intro": "<p>文章を読んで、質問に答えてください。</p>",
+            "startNo": 6,
+            "endNo": 10,
+            "passage": "今日はいい天気ですね。...",
+            "questions": [{
+                    "no": 6,
+                    "type": "text-choice",
+                    "content": "今日はどんな天気ですか？",
+                    "options": ["雨", "雪", "晴れ", "曇り"],
+                    "answer": "2"
+                },
+                // ... dst
+            ]
+        },
+        {
+            "name": "漢字",
+            "intro": "<p>ひらがなを漢字にしてください。</p>",
+            "startNo": 11,
+            "endNo": 15,
+            "questions": [{
+                    "no": 11,
+                    "type": "text-input",
+                    "content": "ひと",
+                    "answer": "人"
+                },
+                {
+                    "no": 12,
+                    "type": "text-input",
+                    "content": "みず",
+                    "answer": "水"
+                },
+                // dst
+            ]
+        },
+        {
+            "name": "語彙・言い換え",
+            "intro": "<p>下線の意味として最も近いものを選んでください。</p>",
+            "startNo": 16,
+            "endNo": 20,
+            "questions": [{
+                    "no": 16,
+                    "type": "text-choice",
+                    "content": "<u>速い</u>の意味は何ですか？",
+                    "options": ["遅い", "速い", "高い", "安い"],
+                    "answer": "1"
+                },
+                {
+                    "no": 17,
+                    "type": "text-choice",
+                    "content": "<u>楽しい</u>の意味は何ですか？",
+                    "options": ["つまらない", "楽しい", "難しい", "簡単"],
+                    "answer": "1"
+                },
+                {
+                    "no": 18,
+                    "type": "text-choice",
+                    "content": "<u>大きい</u>の意味は何ですか？",
+                    "options": ["小さい", "大きい", "高い", "安い"],
+                    "answer": "1"
+                },
+                {
+                    "no": 19,
+                    "type": "text-choice",
+                    "content": "<u>新しい</u>の意味は何ですか？",
+                    "options": ["古い", "新しい", "高い", "安い"],
+                    "answer": "1"
+                },
+                {
+                    "no": 20,
+                    "type": "text-choice",
+                    "content": "<u>暑い</u>の意味は何ですか？",
+                    "options": ["寒い", "暑い", "涼しい", "暖かい"],
+                    "answer": "1"
+                }
+            ]
+        }
+    ]
+}

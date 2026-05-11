@@ -1,0 +1,28 @@
+﻿{
+    "exam_id":  "jft-basic",
+    "title":  "Simulasi JFT Basic A2",
+    "questions":  [
+                      {
+                          "id":  1,
+                          "question":  "Jika ingin meminta tolong, Anda akan berkata...",
+                          "options":  [
+                                          "Sumimasen",
+                                          "Arigatou",
+                                          "Ohayou",
+                                          "Sayounara"
+                                      ],
+                          "answer":  "Sumimasen"
+                      },
+                      {
+                          "id":  2,
+                          "question":  "Apa arti dari \u0027Shigoto\u0027?",
+                          "options":  [
+                                          "Sekolah",
+                                          "Pekerjaan",
+                                          "Rumah",
+                                          "Teman"
+                                      ],
+                          "answer":  "Pekerjaan"
+                      }
+                  ]
+}

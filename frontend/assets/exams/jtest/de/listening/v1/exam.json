@@ -1,0 +1,305 @@
+﻿{
+    "id": "jtest-de-listening-v1",
+    "title": "J.TEST D-E 聴解試験 v1",
+    "level": "jtest-de",
+    "version": "v1",
+    "mode": "listening",
+    "duration": 2100,
+    "totalQuestions": 38,
+    "audio": "/nihongo-mastery/assets/audio/listening/jtest-de/v1/audio.mp3",
+    "sections": [{
+            "name": "写真問題",
+            "intro": "<p>写真を見て、最も合う答えを選んでください。</p><img src=\"/nihongo-mastery/assets/images/listening/jtest-de/v1/contoh1.jpeg\" style=\"max-width:100%; margin-bottom:10px;\">",
+            "startNo": 1,
+            "endNo": 6,
+            "questions": [{
+                    "no": 1,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/1.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "2"
+                },
+                {
+                    "no": 2,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/2.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "4"
+                },
+                {
+                    "no": 3,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/3.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "2"
+                },
+                {
+                    "no": 4,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/4.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "3"
+                },
+                {
+                    "no": 5,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/5.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "1"
+                },
+                {
+                    "no": 6,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/6.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "4"
+                }
+            ]
+        },
+        {
+            "name": "聴読解問題",
+            "intro": "<p>マークしてください</p><pre>答えはマークしてください</pre><img src=\"/nihongo-mastery/assets/images/listening/jtest-de/v1/contoh2.jpeg\" style=\"max-width:100%; margin-bottom:10px;\">",
+            "startNo": 7,
+            "endNo": 12,
+            "questions": [{
+                    "no": 7,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/7.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "4"
+                },
+                {
+                    "no": 8,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/8.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "2"
+                },
+                {
+                    "no": 9,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/9.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "1"
+                },
+                {
+                    "no": 10,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/10.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "2"
+                },
+                {
+                    "no": 11,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/11.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "1"
+                },
+                {
+                    "no": 12,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/12.jpeg",
+                    "options": ["1", "2", "3", "4"],
+                    "answer": "3"
+                }
+            ]
+        },
+        {
+            "name": "応答問題",
+            "intro": "<p>（問題だけ聞いて答えてください）</p><pre>例題 → （答えは解答用紙にマークしてください）</pre>",
+            "startNo": 13,
+            "endNo": 28,
+            "questions": [{
+                    "no": 13,
+                    "type": "text-choice",
+                    "content": "応答問題 13",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 14,
+                    "type": "text-choice",
+                    "content": "応答問題 14",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 15,
+                    "type": "text-choice",
+                    "content": "応答問題 15",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 16,
+                    "type": "text-choice",
+                    "content": "応答問題 16",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 17,
+                    "type": "text-choice",
+                    "content": "応答問題 17",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 18,
+                    "type": "text-choice",
+                    "content": "応答問題 18",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 19,
+                    "type": "text-choice",
+                    "content": "応答問題 19",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 20,
+                    "type": "text-choice",
+                    "content": "応答問題 20",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 21,
+                    "type": "text-choice",
+                    "content": "応答問題 21",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 22,
+                    "type": "text-choice",
+                    "content": "応答問題 22",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 23,
+                    "type": "text-choice",
+                    "content": "応答問題 23",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 24,
+                    "type": "text-choice",
+                    "content": "応答問題 24",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 25,
+                    "type": "text-choice",
+                    "content": "応答問題 25",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 26,
+                    "type": "text-choice",
+                    "content": "応答問題 26",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 27,
+                    "type": "text-choice",
+                    "content": "応答問題 27",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 28,
+                    "type": "text-choice",
+                    "content": "応答問題 28",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                }
+            ]
+        },
+        {
+            "name": "会話・説明問題",
+            "intro": "<p>例題<br>1 耳が痛いですから<br>2 頭が痛いですから<br>3 歯が痛いですから</p><pre>れい ① ● ③ （答えは解答用紙にマークしてください）</pre>",
+            "startNo": 29,
+            "endNo": 38,
+            "questions": [{
+                    "no": 29,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/29.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 30,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/30.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 31,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/31.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 32,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/32.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 33,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/33.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 34,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/34.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "3"
+                },
+                {
+                    "no": 35,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/35.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                },
+                {
+                    "no": 36,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/36.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 37,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/37.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "1"
+                },
+                {
+                    "no": 38,
+                    "type": "image-choice",
+                    "image": "/nihongo-mastery/assets/images/listening/jtest-de/v1/38.jpeg",
+                    "options": ["1", "2", "3"],
+                    "answer": "2"
+                }
+            ]
+        }
+    ]
+}

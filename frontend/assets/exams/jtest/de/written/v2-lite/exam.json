@@ -1,0 +1,52 @@
+{
+    "id": "jtest-de-written-vNEXT",
+    "title": "J.TEST D-E 筆記試験 vNEXT",
+    "level": "jtest-de",
+    "version": "vNEXT",
+    "mode": "written",
+    "duration": 4200,
+    "totalQuestions": 74,
+    "sections": [{
+            "name": "文法・語彙",
+            "intro": "<p>最もよいものを選んでください。</p>",
+            "startNo": 1,
+            "endNo": 30,
+            "questions": []
+        },
+        {
+            "name": "読解",
+            "intro": "<p>文章を読んで、質問に答えてください。</p>",
+            "startNo": 31,
+            "endNo": 46,
+            "questions": []
+        },
+        {
+            "name": "漢字（47-56）",
+            "intro": "<p>ひらがなを漢字にしてください。</p>",
+            "startNo": 47,
+            "endNo": 56,
+            "questions": []
+        },
+        {
+            "name": "漢字（57-66）",
+            "intro": "<p>漢字の読み方を答えてください。</p>",
+            "startNo": 57,
+            "endNo": 66,
+            "questions": []
+        },
+        {
+            "name": "語彙・言い換え",
+            "intro": "<p>下線の意味として最も近いものを選んでください。</p>",
+            "startNo": 67,
+            "endNo": 70,
+            "questions": []
+        },
+        {
+            "name": "並べ替え問題",
+            "intro": "<p>もっともよい順番を選んでください。</p>",
+            "startNo": 71,
+            "endNo": 74,
+            "questions": []
+        }
+    ]
+}
