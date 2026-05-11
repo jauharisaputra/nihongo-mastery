@@ -541,13 +541,7 @@
                         💎 Premium Full
 
                     </button>
-<!-- ADMIN BUTTON -->
-<button class="cta-secondary" id="adminBtn" onclick="openAdminPanel()"
-    style="display:none; background:linear-gradient(135deg,#111827,#374151);">
 
-    ⚙️ Admin Panel
-
-</button>
                 </div>
 
             </div>
@@ -844,113 +838,6 @@ setInterval(() => {
     showFakeNotif();
 
 }, 12000);
-    // ========================================
-    // ADMIN ACCESS
-    // ========================================
-
-    const ADMIN_EMAILS = [
-
-        'saputrajauhari064@gmail.com'
-
-    ];
-
-    function checkAdminAccess(user) {
-
-        if (!user || !user.email) return;
-
-        const email =
-            String(user.email)
-                .toLowerCase()
-                .trim();
-
-        if (ADMIN_EMAILS.includes(email)) {
-
-            document
-                .getElementById('adminBtn')
-                .style.display = 'inline-block';
-        }
-    }
-
-    function openAdminPanel() {
-
-        window.location.href =
-            'admin.html';
-    }
-    // ========================================
-        // GOOGLE LOGIN
-        // ========================================
-
-        function handleGoogleLogin(response) {
-
-            // decode jwt
-            const responsePayload =
-                parseJwt(response.credential);
-
-            console.log(responsePayload);
-
-            const user = {
-
-                name: responsePayload.name,
-                email: responsePayload.email,
-                picture: responsePayload.picture
-
-            };
-
-            // simpan user
-            localStorage.setItem(
-                'nm_user',
-                JSON.stringify(user)
-            );
-
-            // tampilkan header user
-            document
-                .getElementById('userHeader')
-                .style.display = 'block';
-
-            document
-                .getElementById('userNameDisplay')
-                .innerHTML = user.name;
-
-            document
-                .getElementById('userAvatar')
-                .src = user.picture;
-
-            // ========================================
-            // CHECK ADMIN ACCESS
-            // ========================================
-            checkAdminAccess(user);
-
-            console.log('LOGIN SUCCESS');
-        }
-
-        // ========================================
-        // PARSE JWT
-        // ========================================
-
-        function parseJwt(token) {
-
-            const base64Url =
-                token.split('.')[1];
-
-            const base64 =
-                base64Url.replace(/-/g, '+')
-                    .replace(/_/g, '/');
-
-            const jsonPayload =
-                decodeURIComponent(
-                    atob(base64)
-                        .split('')
-                        .map(function (c) {
-
-                            return '%' +
-                                ('00' + c.charCodeAt(0).toString(16))
-                                    .slice(-2);
-
-                        }).join('')
-                );
-
-            return JSON.parse(jsonPayload);
-        }
     </script>
     <!-- LIVE SALES NOTIFICATION -->
 <div class="live-notif" id="liveNotif">
