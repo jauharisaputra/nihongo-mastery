@@ -1,11 +1,11 @@
-console.log('🚀 Nihongo Mastery JS v5.0 - FULLY FIXED');
+console.log('🚀 Nihongo Mastery JS v4.0 - PAYMENT SYSTEM FIXED');
 
 // ========================================
 // GLOBAL STATE
 // ========================================
 let currentUser = null;
 let selectedExam = 'jlpt-n5';
-let promoEndTime = null;
+let promoEndTime;
 let isProcessingPayment = false;
 
 // ========================================
@@ -17,57 +17,7 @@ const GAS_URL =
 console.log('✅ GAS URL:', GAS_URL);
 
 // ========================================
-// API REQUEST HELPER
-// ========================================
-async function apiRequest(payload = {}) {
-
-    try {
-
-        console.log('📤 API REQUEST:', payload);
-
-        const response = await fetch(GAS_URL, {
-
-            method: 'POST',
-
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-
-            body: JSON.stringify(payload)
-
-        });
-
-        const text = await response.text();
-
-        console.log('📥 RAW RESPONSE:', text);
-
-        let data = {};
-
-        try {
-
-            data = JSON.parse(text);
-
-        } catch (err) {
-
-            console.error('JSON PARSE ERROR:', err);
-
-            throw new Error('Invalid JSON response');
-        }
-
-        console.log('✅ API RESPONSE:', data);
-
-        return data;
-
-    } catch (err) {
-
-        console.error('❌ API ERROR:', err);
-
-        throw err;
-    }
-}
-
-// ========================================
-// COUNTDOWN
+// 1. COUNTDOWN
 // ========================================
 function initCountdown() {
 
@@ -109,7 +59,7 @@ function updateCountdownDisplay() {
 }
 
 // ========================================
-// TOAST
+// 2. TOAST
 // ========================================
 function showToast(message, type = 'success') {
 
@@ -120,17 +70,16 @@ function showToast(message, type = 'success') {
         position: fixed;
         top: 120px;
         right: 20px;
-        z-index: 999999;
+        z-index: 99999;
         background: ${type === 'error' ? '#ff4757' : '#00ff88'};
-        color: ${type === 'error' ? '#fff' : '#000'};
+        color: #000;
         padding: 15px 25px;
         border-radius: 15px;
         font-weight: bold;
-        box-shadow: 0 10px 30px rgba(0,0,0,.3);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         transform: translateX(400px);
         transition: all .4s ease;
         max-width: 320px;
-        font-family: Arial, sans-serif;
     `;
 
     toast.textContent = message;
@@ -138,9 +87,7 @@ function showToast(message, type = 'success') {
     document.body.appendChild(toast);
 
     requestAnimationFrame(() => {
-
-        toast.style.transform =
-            'translateX(0)';
+        toast.style.transform = 'translateX(0)';
     });
 
     setTimeout(() => {
@@ -158,7 +105,7 @@ function showToast(message, type = 'success') {
 }
 
 // ========================================
-// JWT PARSER
+// 3. JWT PARSER
 // ========================================
 function parseJwt(token) {
 
@@ -178,7 +125,8 @@ function parseJwt(token) {
                 .split('')
                 .map(c =>
                     '%' +
-                    ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    ('00' + c.charCodeAt(0).toString(16))
+                    .slice(-2)
                 )
                 .join('')
             );
@@ -194,11 +142,9 @@ function parseJwt(token) {
 }
 
 // ========================================
-// UPDATE USER UI
+// 4. UPDATE USER UI
 // ========================================
 function updateUserUI(user) {
-
-    if (!user) return;
 
     currentUser = user;
 
@@ -223,7 +169,9 @@ function updateUserUI(user) {
         user.role || 'student'
     );
 
+    // ========================================
     // HEADER
+    // ========================================
     const header =
         document.getElementById('userHeader');
 
@@ -232,7 +180,9 @@ function updateUserUI(user) {
         header.style.display = 'flex';
     }
 
+    // ========================================
     // NAME
+    // ========================================
     const userNameDisplay =
         document.getElementById('userNameDisplay');
 
@@ -242,7 +192,9 @@ function updateUserUI(user) {
             user.name || 'User';
     }
 
+    // ========================================
     // AVATAR
+    // ========================================
     const avatar =
         document.getElementById('userAvatar');
 
@@ -252,18 +204,19 @@ function updateUserUI(user) {
             `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=1a1a3e&color=ffd700&size=128`;
     }
 
+    // ========================================
     // STATUS
+    // ========================================
     const userStatus =
         document.getElementById('userStatus');
 
     if (userStatus) {
 
-        const premium =
+        if (
             user.role === 'premium' ||
             user.role === 'pro' ||
-            user.role === 'lifetime';
-
-        if (premium) {
+            user.role === 'lifetime'
+        ) {
 
             userStatus.textContent =
                 '💎 Premium Active';
@@ -287,7 +240,9 @@ function updateUserUI(user) {
         }
     }
 
-    // HIDE CTA
+    // ========================================
+    // CTA
+    // ========================================
     const guestCTA =
         document.getElementById('guestCTA');
 
@@ -296,67 +251,75 @@ function updateUserUI(user) {
         guestCTA.style.display = 'none';
     }
 
-    console.log('✅ USER UPDATED:', user);
+    showToast(
+        `Welcome ${user.name}! 🎉`
+    );
 
     checkUserEntitlement();
 }
 
 // ========================================
-// LOGOUT
+// 5. LOGOUT
 // ========================================
 function logoutUser() {
 
-    localStorage.clear();
-
     currentUser = null;
+
+    localStorage.clear();
 
     location.reload();
 }
 
 // ========================================
-// REGISTER USER
+// 6. REGISTER USER
 // ========================================
 async function registerUser(user) {
 
     try {
 
-        const data =
-            await apiRequest({
+        const response =
+            await fetch(GAS_URL, {
 
-                action: 'register',
+                method: 'POST',
 
-                email: user.email,
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
 
-                name: user.name
+                body: JSON.stringify({
+
+                    action: 'register',
+
+                    email: user.email,
+
+                    name: user.name
+                })
             });
+
+        const data =
+            await response.json();
 
         console.log('REGISTER:', data);
 
-        if (!data.success) {
+        if (data.success) {
 
-            throw new Error(
-                data.error || 'Register gagal'
-            );
+            const finalUser = {
+
+                user_id: data.user_id,
+
+                email: data.email,
+
+                name: data.name,
+
+                role: data.role
+            };
+
+            updateUserUI(finalUser);
+
+            return finalUser;
         }
 
-        const finalUser = {
-
-            user_id: data.user_id,
-
-            email: data.email,
-
-            name: data.name,
-
-            role: data.role || 'student'
-        };
-
-        updateUserUI(finalUser);
-
-        showToast(
-            `Welcome ${finalUser.name}! 🎉`
-        );
-
-        return finalUser;
+        throw new Error(data.error);
 
     } catch (err) {
 
@@ -370,7 +333,7 @@ async function registerUser(user) {
 }
 
 // ========================================
-// GOOGLE LOGIN CALLBACK
+// 7. GOOGLE LOGIN CALLBACK
 // ========================================
 async function handleGoogleLogin(response) {
 
@@ -408,16 +371,18 @@ async function handleGoogleLogin(response) {
 }
 
 // ========================================
-// CHECK USER ACCESS
+// 8. CHECK USER ACCESS
 // ========================================
 function checkUserEntitlement() {
 
+    if (!currentUser) return;
+
     const role =
-        localStorage.getItem('userRole') ||
-        'student';
+        localStorage.getItem('userRole') || 'student';
 
     console.log('ROLE:', role);
 
+    // PREMIUM ACCESS
     if (
         role === 'premium' ||
         role === 'pro' ||
@@ -433,7 +398,7 @@ function checkUserEntitlement() {
 }
 
 // ========================================
-// START FREE TRIAL
+// 9. START FREE TRIAL
 // ========================================
 function startFreeTrial() {
 
@@ -452,7 +417,7 @@ function startFreeTrial() {
 }
 
 // ========================================
-// BUY PLAN
+// 10. BUY PLAN
 // ========================================
 async function buyPlan(plan, amount) {
 
@@ -475,57 +440,54 @@ async function buyPlan(plan, amount) {
         const orderId =
             `ORDER-${Date.now()}`;
 
-        console.log('🛒 CREATE PAYMENT:', {
-            plan,
-            amount,
-            orderId
-        });
-
         // ========================================
-        // FIX:
-        // create_payment -> submit_payment
+        // SAVE PAYMENT
         // ========================================
-        const data =
-            await apiRequest({
+        const response =
+            await fetch(GAS_URL, {
 
-                action: 'submit_payment',
+                method: 'POST',
 
-                user_id: currentUser.user_id,
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
 
-                plan: plan,
+                body: JSON.stringify({
 
-                amount: amount,
+                    action: 'create_payment',
 
-                order_id: orderId,
+                    user_id: currentUser.user_id,
 
-                proof: ''
+                    plan: plan,
+
+                    amount: amount,
+
+                    order_id: orderId
+                })
             });
+
+        const data =
+            await response.json();
 
         console.log('PAYMENT:', data);
 
         if (!data.success) {
 
-            throw new Error(
-                data.error || 'Payment gagal'
-            );
+            throw new Error(data.error);
         }
 
-        showToast(
-            'Pembayaran dibuat!'
-        );
-
         // ========================================
-        // REDIRECT
+        // REDIRECT PAYMENT PAGE
         // ========================================
         window.location.href =
-            `payment.html?order_id=${encodeURIComponent(orderId)}&plan=${encodeURIComponent(plan)}&amount=${encodeURIComponent(amount)}`;
+            `payment.html?order_id=${orderId}&plan=${plan}&amount=${amount}`;
 
     } catch (err) {
 
         console.error(err);
 
         showToast(
-            err.message || 'Gagal membuat pembayaran!',
+            'Gagal membuat pembayaran!',
             'error'
         );
 
@@ -536,7 +498,7 @@ async function buyPlan(plan, amount) {
 }
 
 // ========================================
-// CHECK PREMIUM ACCESS
+// 11. CHECK PREMIUM ACCESS
 // ========================================
 function hasPremiumAccess() {
 
@@ -551,7 +513,7 @@ function hasPremiumAccess() {
 }
 
 // ========================================
-// OPEN PREMIUM EXAM
+// 12. OPEN PREMIUM EXAM
 // ========================================
 function openPremiumExam(examPath) {
 
@@ -576,18 +538,22 @@ function openPremiumExam(examPath) {
     }
 
     window.location.href =
-        `exam.html?path=${encodeURIComponent(examPath)}&user=${currentUser.user_id}`;
+        `exam.html?path=${examPath}&user=${currentUser.user_id}`;
 }
 
 // ========================================
-// LIVE NOTIFICATIONS
+// 13. LIVE NOTIFICATIONS
 // ========================================
 const notifications = [
 
     'Rina Jakarta upgrade PREMIUM 💎',
+
     'Andi Bandung lulus JLPT 🔥',
+
     'Sari Surabaya beli LIFETIME 👑',
+
     'Kevin Bali unlock Full Exam 🎧',
+
     'Doni Medan join PRO ⚡'
 ];
 
@@ -639,7 +605,7 @@ function initLiveNotifications() {
 }
 
 // ========================================
-// RESTORE SESSION
+// 14. RESTORE SESSION
 // ========================================
 async function restoreSession() {
 
@@ -649,12 +615,7 @@ async function restoreSession() {
     const email =
         localStorage.getItem('userEmail');
 
-    if (!userId || !email) {
-
-        console.log('⚠️ NO SESSION');
-
-        return;
-    }
+    if (!userId || !email) return;
 
     try {
 
@@ -670,7 +631,7 @@ async function restoreSession() {
 
         if (data.success) {
 
-            const restoredUser = {
+            currentUser = {
 
                 user_id: data.user_id,
 
@@ -681,9 +642,7 @@ async function restoreSession() {
                 role: data.role
             };
 
-            updateUserUI(restoredUser);
-
-            console.log('✅ SESSION RESTORED');
+            updateUserUI(currentUser);
         }
 
     } catch (err) {
@@ -693,7 +652,7 @@ async function restoreSession() {
 }
 
 // ========================================
-// SAVE EXAM RESULT
+// 15. SAVE EXAM RESULT
 // ========================================
 async function saveExamResult(
     examPath,
@@ -706,26 +665,35 @@ async function saveExamResult(
 
     try {
 
-        const data =
-            await apiRequest({
+        const response =
+            await fetch(GAS_URL, {
 
-                action: 'save_result',
+                method: 'POST',
 
-                user_id: currentUser.user_id,
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
 
-                exam_path: examPath,
+                body: JSON.stringify({
 
-                score: score,
+                    action: 'save_result',
 
-                total_questions: totalQuestions,
+                    user_id: currentUser.user_id,
 
-                time_used: timeUsed
+                    exam_path: examPath,
+
+                    score: score,
+
+                    total_questions: totalQuestions,
+
+                    time_used: timeUsed
+                })
             });
 
-        console.log(
-            'RESULT SAVED:',
-            data
-        );
+        const data =
+            await response.json();
+
+        console.log('RESULT SAVED:', data);
 
     } catch (err) {
 
@@ -734,7 +702,7 @@ async function saveExamResult(
 }
 
 // ========================================
-// INIT
+// 16. INIT
 // ========================================
 window.addEventListener(
     'DOMContentLoaded',
@@ -748,9 +716,7 @@ window.addEventListener(
 
         initLiveNotifications();
 
-        console.log(
-            '✅ Nihongo Mastery Ready!'
-        );
+        console.log('✅ Nihongo Mastery Ready!');
     }
 );
 

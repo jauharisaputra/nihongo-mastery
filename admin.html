@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Payment - Nihongo Mastery</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            font-family: Arial, sans-serif;
+            background:
+                linear-gradient(135deg,
+                    #0f172a,
+                    #1e293b);
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background:
+                rgba(255, 255, 255, 0.08);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.1);
+
+            backdrop-filter: blur(10px);
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, .3);
+        }
+
+        .card p {
+            margin: 10px 0;
+            color: #e2e8f0;
+        }
+
+        img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 14px;
+            margin-top: 15px;
+            border:
+                2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg,
+                    #10b981,
+                    #059669);
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-top: 18px;
+
+            transition: .3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            opacity: .8;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>📋 Pending Payments</h1>
+
+    <div id="paymentList">
+
+        <div class="loading">
+            Loading payments...
+        </div>
+
+    </div>
+
+    <script>
+
+        console.log('📋 ADMIN PANEL READY');
+
+        const GAS_URL =
+            'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
+
+        // ========================================
+        // LOAD PAYMENTS
+        // ========================================
+        async function loadPayments() {
+
+            try {
+
+                console.log('📥 LOAD PAYMENTS');
+
+                const response =
+                    await fetch(
+                        `${GAS_URL}?action=get_pending_payments`
+                    );
+
+                const data =
+                    await response.json();
+
+                console.log(data);
+
+                const container =
+                    document.getElementById('paymentList');
+
+                container.innerHTML = '';
+
+                // ========================================
+                // EMPTY
+                // ========================================
+                if (
+                    !data.payments ||
+                    data.payments.length === 0
+                ) {
+
+                    container.innerHTML = `
+
+<div class="empty">
+
+✅ Tidak ada pembayaran pending
+
+</div>
+
+`;
+
+                    return;
+                }
+
+                // ========================================
+                // RENDER
+                // ========================================
+                data.payments.forEach(p => {
+
+                    container.innerHTML += `
+
+<div class="card">
+
+<h2>${p.order_id}</h2>
+
+<p><strong>User:</strong> ${p.user_id}</p>
+
+<p><strong>Plan:</strong> ${p.plan}</p>
+
+<p><strong>Amount:</strong> Rp ${Number(p.amount).toLocaleString('id-ID')}</p>
+
+<p><strong>Status:</strong> ${p.status}</p>
+
+<p><strong>Date:</strong> ${p.date}</p>
+
+<img src="${p.proof}" alt="Bukti Transfer">
+
+<br>
+
+<button
+id="btn-${p.order_id}"
+onclick="approvePayment('${p.order_id}')">
+
+✅ Approve Payment
+
+</button>
+
+</div>
+
+`;
+                });
+
+            } catch (err) {
+
+                console.error(err);
+
+                document.getElementById('paymentList')
+                    .innerHTML = `
+
+<div class="empty">
+
+❌ Gagal load payments
+
+</div>
+
+`;
+            }
+        }
+
+        // ========================================
+        // APPROVE PAYMENT
+        // ========================================
+        async function approvePayment(orderId) {
+
+            try {
+
+                const btn =
+                    document.getElementById(
+                        `btn-${orderId}`
+                    );
+
+                btn.disabled = true;
+
+                btn.innerText =
+                    '⏳ Processing...';
+
+                console.log(
+                    '✅ APPROVE:',
+                    orderId
+                );
+
+                // ========================================
+                // SIMPLE REQUEST
+                // ========================================
+                const response =
+                    await fetch(GAS_URL, {
+
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
+
+                        body: JSON.stringify({
+
+                            action: 'approve_payment',
+
+                            order_id: orderId
+
+                        })
+
+                    });
+
+                const data =
+                    await response.json();
+
+                console.log(data);
+
+                if (data.success) {
+
+                    alert(
+                        'Payment approved!'
+                    );
+
+                    loadPayments();
+
+                } else {
+
+                    btn.disabled = false;
+
+                    btn.innerText =
+                        '✅ Approve Payment';
+
+                    alert(
+                        'Gagal approve:\n' +
+                        data.error
+                    );
+                }
+
+            } catch (err) {
+
+                console.error(err);
+
+                alert(
+                    'Approve gagal!'
+                );
+            }
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+        loadPayments();
+
+    </script>
+
+</body>
+
+</html>
