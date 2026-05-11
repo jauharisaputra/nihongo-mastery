@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian - Nihongo Mastery</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .exam-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.3s;
+            background: #f9f9ff;
+            font-size: 1.05rem;
+        }
+
+        .option-btn:hover {
+            background: #f0f0ff;
+            border-color: #6366f1;
+        }
+
+        .option-btn.correct {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+
+        .option-btn.wrong {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+
+        .section-box {
+            margin: 20px 0 30px;
+            padding: 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+        }
+
+        .section-intro {
+            background: #eef2ff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .question {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .question img {
+            max-width: 100%;
+            display: block;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        .audio-wrap {
+            margin: 15px 0 25px;
+        }
+
+        .audio-wrap audio {
+            width: 100%;
+        }
+
+        .top-info {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            color: #374151;
+        }
+
+        .pill {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+        }
+
+        .small-note {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="exam-page">
+    <div class="exam-container">
+        <h2 id="examTitle">Memuat Ujian...</h2>
+
+        <div class="top-info">
+            <div class="pill" id="examMeta">Loading...</div>
+            <div class="pill" id="userMeta">User: -</div>
+            <div class="pill" id="timeMeta">Waktu: --:--</div>
+        </div>
+
+        <div id="loginBox">
+            <h3>Login Peserta</h3>
+            <input type="text" id="nama" placeholder="Nama Lengkap" style="padding:10px;width:100%;max-width:350px;">
+            <br><br>
+            <input type="text" id="kelas" placeholder="Kelas" style="padding:10px;width:100%;max-width:350px;">
+            <br><br>
+            <button onclick="startExam()" class="cta-primary">Mulai Ujian</button>
+            <p class="small-note">Pastikan Anda sudah memilih path ujian yang benar dari dashboard.</p>
+        </div>
+
+        <div id="quizBox" class="hidden">
+            <div id="audioWrap"></div>
+            <p id="qCount">Soal 1 dari X</p>
+            <div id="questionArea" style="font-size:1.15rem;font-weight:bold;margin-bottom:20px;"></div>
+            <div id="optionsArea"></div>
+            <button id="nextBtn" onclick="nextQuestion()" style="display:none;margin-top:20px;">→ Soal
+                Berikutnya</button>
+            <button id="submitBtn" onclick="finishExam()"
+                style="display:none;margin-top:20px;background:#16a34a;">Kumpulkan</button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const pathParam = urlParams.get('path');
+        const examType = urlParams.get('exam');
+        const modeParam = urlParams.get('mode');
+        const versionParam = urlParams.get('version');
+
+        const userId = urlParams.get('user') || localStorage.getItem('userId') || '3';
+        /* =========================
+        PROTEKSI PREMIUM
+        ========================= */
+
+        const premiumAccess =
+            localStorage.getItem('premium_access');
+
+        console.log('PREMIUM ACCESS:', premiumAccess);
+
+        if (
+            pathParam &&
+            (
+                pathParam.includes('jtest') ||
+                pathParam.includes('premium')
+            ) &&
+            premiumAccess !== 'true'
+        ) {
+
+            alert('❌ Anda harus membeli Premium terlebih dahulu!');
+
+            window.location.href = 'index.php';
+
+        }
+        let examPath = pathParam || buildExamPath();
+        let examData = null;
+        let quizData = [];
+        let currentQ = 0;
+        let score = 0;
+        let submitted = false;
+        let namaPeserta = "";
+        let kelasPeserta = "";
+        let duration = 0;
+        let timer = null;
+        let questionAnswered = false;
+
+        document.getElementById('userMeta').textContent = `User: ${userId}`;
+
+        loadExam();
+
+        function buildExamPath() {
+            if (!examType) return 'jtest/de/v1';
+
+            if (examType.includes('/')) return examType;
+
+            const mode = modeParam || 'written';
+            const version = versionParam || 'v1';
+
+            if (examType === 'jtest-de') return `jtest/de/${version}`;
+            if (examType === 'jlpt-n5') return `jlpt/n5/${mode}/${version}`;
+            if (examType === 'jft-basic') return `jft/basic/${mode}/${version}`;
+
+            return `${examType}/${mode}/${version}`;
+        }
+
+        function loadExam() {
+            const jsonPath = `/nihongo-mastery/exams/${examPath}/exam.json`;
+            fetch(jsonPath)
+                .then(res => {
+                    if (!res.ok) throw new Error(`File tidak ditemukan: ${res.status} (${jsonPath})`);
+                    return res.json();
+                })
+                .then(data => {
+                    examData = data;
+                    quizData = flattenQuestions(data);
+                    duration = data.duration || (35 * 60);
+
+                    document.getElementById('examTitle').textContent = data.title || 'Ujian';
+                    document.getElementById('examMeta').textContent =
+                        `${data.level || '-'} | ${data.mode || '-'} | ${data.version || '-'} | ${quizData.length} soal`;
+                    document.getElementById('timeMeta').textContent = formatTime(duration);
+
+                    if (data.audio) {
+                        document.getElementById('audioWrap').innerHTML = `
+                            <div class="audio-wrap">
+                                <audio id="mainAudio" controls>
+                                    <source src="${resolveAssetPath(data.audio)}" type="audio/mp3">
+                                </audio>
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('qCount').textContent = `Soal 1 dari ${quizData.length}`;
+                })
+                .catch(err => {
+                    document.getElementById('loginBox').innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
+                    console.error(err);
+                });
+        }
+
+        function flattenQuestions(data) {
+            if (Array.isArray(data.questions) && data.questions.length) return data.questions;
+            if (Array.isArray(data.sections)) {
+                const out = [];
+                data.sections.forEach(sec => {
+                    (sec.questions || []).forEach(q => out.push({
+                        ...q,
+                        sectionName: sec.name,
+                        sectionIntro: sec.intro
+                    }));
+                });
+                return out;
+            }
+            return [];
+        }
+
+        function resolveAssetPath(p) {
+            if (!p) return '';
+            if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('/')) return p;
+            return p;
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function startExam() {
+            namaPeserta = document.getElementById('nama').value.trim();
+            kelasPeserta = document.getElementById('kelas').value.trim();
+
+            if (!namaPeserta || !kelasPeserta) {
+                alert('Isi nama dan kelas terlebih dahulu');
+                return;
+            }
+
+            localStorage.setItem('userId', userId);
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('quizBox').classList.remove('hidden');
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            questionAnswered = false;
+
+            const q = quizData[currentQ];
+            const qNo = q.no || (currentQ + 1);
+
+            document.getElementById('qCount').textContent = `Soal ${qNo} dari ${quizData.length}`;
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'none';
+
+            const questionArea = document.getElementById('questionArea');
+            const optionsArea = document.getElementById('optionsArea');
+
+            let html = '';
+
+            if (q.sectionName && q.sectionIntro) {
+                html += `<div class="section-box">
+                    <div class="section-title">${q.sectionName}</div>
+                    <div class="section-intro">${q.sectionIntro}</div>
+                </div>`;
+            }
+
+            if (q.image) {
+                html += `<img src="${resolveAssetPath(q.image)}" alt="Soal ${qNo}">`;
+            }
+
+            if (q.content) {
+                html += `<div>${q.content}</div>`;
+            }
+
+            if (q.question) {
+                html += `<div>${q.question}</div>`;
+            }
+
+            questionArea.innerHTML = html || `Soal ${qNo}`;
+
+            optionsArea.innerHTML = '';
+            const options = q.options || [];
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(btn, opt, q.answer);
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(btn, selected, correct) {
+            if (questionAnswered) return;
+            questionAnswered = true;
+
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                score++;
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    if (b.textContent === correct) b.classList.add('correct');
+                });
+            }
+
+            if (currentQ < quizData.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('submitBtn').style.display = 'inline-block';
+            }
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            loadQuestionUI();
+        }
+
+        function loadQuestionUI() {
+            if (currentQ < quizData.length) {
+                renderQuestion();
+            } else {
+                finishExam();
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                duration--;
+                document.getElementById('timeMeta').textContent = formatTime(Math.max(duration, 0));
+                if (duration <= 0) {
+                    clearInterval(timer);
+                    finishExam('Waktu Habis');
+                }
+            }, 1000);
+        }
+
+        function getExamId() {
+            if (examData?.id) return examData.id;
+            return examPath.replace(/\//g, '-');
+        }
+
+        function finishExam(status = 'Selesai') {
+            if (submitted) return;
+            submitted = true;
+            clearInterval(timer);
+
+            const totalQuestions = quizData.length || 1;
+            const finalScore = Math.round((score / totalQuestions) * 100);
+
+            const saveData = {
+                method: 'save_result',
+                user_id: parseInt(userId, 10) || 3,
+                exam: getExamId(),
+                score: finalScore,
+                status: status,
+                nama: namaPeserta,
+                kelas: kelasPeserta,
+                mode: examData?.mode || '',
+                version: examData?.version || '',
+                path: examPath
+            };
+            fetch('api/register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(saveData)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`Skor akhir: ${finalScore}%`);
+                    window.location.href = `dashboard.html?user=${userId}`;
+                })
+                .catch(err => {
+                    alert('Save failed: ' + err);
+                    window.location.href = `dashboard.html?user=${userId}`;
+                });
+        }
+    </script>
+</body>
+
+</html>

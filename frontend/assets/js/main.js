@@ -1,16 +1,18 @@
-console.log('🚀 Nihongo Mastery JS v2.0 - FULLY FUNCTIONAL');
+console.log('🚀 Nihongo Mastery JS v2.1 - GITHUB PAGES + GAS BACKEND');
 
 let currentUser = null;
 let selectedExam = 'jlpt-n5';
-let snapToken = null;
 let promoEndTime;
 let notifInterval;
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
+
+let isProcessingPayment = false;
 
 // ========================================
-// 1. COUNTDOWN 10 MENIT PROMO
+// 1. COUNTDOWN 10 MENIT PROMO (UNCHANGED)
 // ========================================
 function initCountdown() {
-    promoEndTime = Date.now() + (10 * 60 * 1000); // 10 minutes
+    promoEndTime = Date.now() + (10 * 60 * 1000);
     updateCountdownDisplay();
     setInterval(updateCountdownDisplay, 1000);
 }
@@ -32,7 +34,6 @@ function updateCountdownDisplay() {
     document.getElementById('countdown-timer').textContent =
         `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 
-    // Urgent red < 2min
     const timerEl = document.getElementById('countdown-timer');
     if (diff < 120000) {
         timerEl.style.background = 'rgba(255,0,0,0.4)';
@@ -43,52 +44,40 @@ function updateCountdownDisplay() {
 initCountdown();
 
 // ========================================
-// 2. USER LOGIN/UI FUNCTIONS
+// 2. USER LOGIN/UI FUNCTIONS (UPDATED)
 // ========================================
 function updateUserUI(user) {
     console.log('🎉 Login Success:', user);
     currentUser = user;
-    // 🔥 TAMBAHKAN INI (Simpan ID ke browser agar tidak hilang saat refresh)
-    localStorage.setItem('userId', user.id);
+    localStorage.setItem('userId', user.user_id || user.id);
+    localStorage.setItem('userEmail', user.email);
+    localStorage.setItem('userName', user.name);
+
     // Header
     const header = document.getElementById('userHeader');
-    header.style.display = 'block';
+    if (header) header.style.display = 'block';
     document.getElementById('userNameDisplay').textContent = user.name || 'User';
     document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=1a1a3e&color=ffd700&size=40`;
 
     // CTA Switch
-    const guestCTA =
-        document.getElementById('guestCTA');
+    const guestCTA = document.getElementById('guestCTA');
+    const personalCTA = document.getElementById('personalCTA');
+    const n5Badge = document.getElementById('n5-badge');
 
-    const personalCTA =
-        document.getElementById('personalCTA');
-
-    const n5Badge =
-        document.getElementById('n5-badge');
-
-    if (guestCTA) {
-        guestCTA.style.display = 'none';
-    }
-
-    if (personalCTA) {
-        personalCTA.style.display = 'block';
-    }
-
+    if (guestCTA) guestCTA.style.display = 'none';
+    if (personalCTA) personalCTA.style.display = 'block';
     if (n5Badge) {
         n5Badge.textContent = '✅ Free';
         n5Badge.className = 'access-badge free';
     }
 
     showToast(`Welcome ${user.name}! 🎓`);
-    // 🔥 TAMBAHKAN INI (Panggil fungsi check agar status loading hilang)
     checkUserEntitlement();
-
-    showToast(`Welcome ${user.name}! 🎓`);
 }
 
 function logoutUser() {
     currentUser = null;
-    localStorage.removeItem('userId'); // 🔥 TAMBAHKAN INI
+    localStorage.clear();
     document.getElementById('userHeader').style.display = 'none';
     document.getElementById('personalCTA').style.display = 'none';
     document.getElementById('guestCTA').style.display = 'block';
@@ -96,188 +85,132 @@ function logoutUser() {
 }
 
 // ========================================
-// 3. GOOGLE LOGIN HANDLER
+// 3. GOOGLE LOGIN → GAS REGISTER (CONVERTED)
 // ========================================
 function handleGoogleLogin(response) {
     console.log('🔐 Google Login Triggered');
     const idToken = response.credential;
 
-    fetch('api/register.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                token: idToken,
-                method: 'google'
-            })
+    // Decode Google token client-side (simplified)
+    fetch(`${GAS_URL}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'register',
+            token: idToken,
+            method: 'google'
         })
-        .then(res => {
-            console.log('API Status:', res.status);
-            return res.json();
-        })
-        .then(data => {
-            console.log('API Response:', data);
-            if (data.success && data.user) {
-                updateUserUI(data.user);
-            } else {
-                console.error('Login failed:', data);
-                showToast('Login gagal: ' + (data.error || 'Unknown'), 'error');
-            }
-        })
-        .catch(err => {
-            console.error('Network error:', err);
-            showToast('Koneksi error!', 'error');
-        });
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('GAS Response:', data);
+        if (data.success) {
+            const user = {
+                user_id: data.user_id,
+                id: data.user_id,
+                email: idToken.split('.')[1], // Simplified
+                name: 'Google User'
+            };
+            updateUserUI(user);
+        } else {
+            showToast('Login gagal: ' + (data.error || 'Unknown'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Network error:', err);
+        showToast('Koneksi error!', 'error');
+    });
 }
 
 // ========================================
-// 4. EXAM & PAYMENT FUNCTIONS
+// 4. EXAM & MANUAL PAYMENT (NO MIDTRANS)
 // ========================================
 function selectExam(exam) {
     selectedExam = exam;
     showToast(`${exam.toUpperCase()} dipilih! ✅`);
 }
 
-function checkEntitlement(type, exam, callback) {
-    if (!currentUser) return callback(false);
-    fetch(`api/register.php?action=check&user_id=${currentUser.id}&exam=${exam}&type=${type}`)
-        .then(res => res.json())
-        .then(data => callback(!!data.hasAccess))
-        .catch(() => callback(false));
-}
-// TAMBAHKAN INI DI BAGIAN 4
 function checkUserEntitlement() {
     if (!currentUser) return;
 
-    fetch(`api/register.php?action=check&user_id=${currentUser.id}&exam=jlpt-n5&type=premium`)
-        .then(res => res.json())
-        .then(data => {
-            const statusEl = document.getElementById('accessStatus');
-            const btn = document.getElementById('userCTABtn');
+    // Simulate entitlement check (localStorage + role)
+    const role = localStorage.getItem('userRole') || 'student';
+    const statusEl = document.getElementById('accessStatus');
+    const btn = document.getElementById('userCTABtn');
 
-            if (statusEl) statusEl.textContent = data.hasAccess ? 'PREMIUM AKTIF' : 'FREE TRIAL';
-
-            if (btn) {
-                if (data.hasAccess) {
-                    // USER PREMIUM: Tombol mengarah ke Dashboard
-                    btn.textContent = "🚀 Buka Dashboard";
-                    btn.onclick = () => window.location.href = 'dashboard.html';
-                } else {
-                    // USER FREE: Tombol langsung ujian N5
-                    btn.textContent = "🚀 Mulai Simulasi N5";
-                    btn.onclick = () => window.location.href = `exam.html?path=jtest/de/written/v1&mode=free`; // 🔥 UBAH KE SIMULASI N5 GRATIS
-                }
-            }
-        })
-        .catch(err => console.error('Entitlement check error:', err));
+    if (statusEl) statusEl.textContent = role === 'premium' ? 'PREMIUM AKTIF' : 'FREE TRIAL';
+    
+    if (btn) {
+        if (role === 'premium') {
+            btn.textContent = "🚀 Buka Dashboard";
+            btn.onclick = () => window.location.href = 'dashboard.html';
+        } else {
+            btn.textContent = "🚀 Mulai Simulasi N5";
+            btn.onclick = () => window.location.href = `exam.html?path=jlpt/n5/written/v1-lite&user=${currentUser.user_id}`;
+        }
+    }
 }
 
 function startFreeTrial() {
     if (!currentUser) return showToast('Login dulu! 🔐', 'error');
-    checkEntitlement('free', selectedExam, (hasAccess) => {
-        if (hasAccess) {
-            window.location.href = `dashboard.html?exam=${selectedExam}&mode=free`;
-        } else {
-            showToast('Free trial habis. Upgrade yuk! 💰');
-        }
-    });
+    window.location.href = `exam.html?path=jlpt/n5/written/v1-lite&user=${currentUser.user_id}`;
 }
-// Tambahkan variabel di atas (global)
-let isProcessingPayment = false;
 
 function buyPlan(plan, amount) {
     if (!currentUser) return showToast('Login dulu! 🔐', 'error');
-    if (isProcessingPayment) return; // 🔥 MENCEGAH KLIK GANDA
+    if (isProcessingPayment) return;
 
     isProcessingPayment = true;
-    showToast('Membuat token pembayaran...', 'info');
+    
+    const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+    const rekeningInfo = `
+💰 TRANSFER KE (Pilih 1):
+🔹 BRI: 1234-5678-9012 a/n Jauhari Saputra
+🔹 BNI: 0987-6543-2109
+🔹 GoPay: 0812-3456-7890
+🔹 OVO: 0812-3456-7890
+🔹 DANA: 0812-3456-7890
 
-    fetch('api/create-token.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: currentUser.id,
-                name: currentUser.name,
-                email: currentUser.email,
-                amount: amount,
-                plan: plan,
-                exam: selectedExam
-            })
+💳 Nominal: Rp ${amount.toLocaleString()}
+📋 Order ID: ${orderId}
+👤 Nama: ${currentUser.name || 'User'}
+📧 Email: ${localStorage.getItem('userEmail') || 'N/A'}
+
+✅ Kirim BUKTI TRANSFER via WA:
+📱 0812-3456-7890 (Admin)
+
+⏰ Premium aktif dalam 5 menit setelah konfirmasi!
+    `.trim();
+
+    // Save pending payment to GAS
+    fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'verify_payment',
+            user_id: currentUser.user_id,
+            plan: plan,
+            amount: amount,
+            order_id: orderId,
+            status: 'pending'
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.token) {
-                snap.pay(data.token, {
-                    onSuccess: (result) => {
-
-                        console.log('✅ PAYMENT SUCCESS:', result);
-
-                        isProcessingPayment = false;
-
-                        // =========================
-                        // SIMPAN STATUS PREMIUM
-                        // =========================
-                        localStorage.setItem('premium_access', 'true');
-
-                        // simpan plan
-                        localStorage.setItem('premium_plan', plan);
-
-                        // simpan order id
-                        localStorage.setItem(
-                            'premium_order_id',
-                            result.order_id || ''
-                        );
-
-                        // simpan waktu aktivasi
-                        localStorage.setItem(
-                            'premium_date',
-                            new Date().toISOString()
-                        );
-
-                        // optional
-                        localStorage.setItem(
-                            'premium_user',
-                            currentUser.id
-                        );
-
-                        showToast('🎉 Premium berhasil aktif!');
-
-                        // redirect
-                        setTimeout(() => {
-
-                            window.location.href =
-                                'dashboard.html';
-
-                        }, 1500);
-
-                    },
-                    onPending: (result) => {
-                        isProcessingPayment = false;
-                        showToast('⏳ Menunggu pembayaran.');
-                    },
-                    onError: (result) => {
-                        isProcessingPayment = false;
-                        showToast('❌ Pembayaran gagal.', 'error');
-                    },
-                    onClose: () => {
-                        isProcessingPayment = false; // 🔥 PENTING: Reset state saat popup ditutup
-                    }
-                });
-            } else {
-                isProcessingPayment = false;
-                showToast('Token error: ' + (data.error || 'Unknown'), 'error');
-            }
-        })
-        .catch(err => {
-            isProcessingPayment = false;
-            showToast('Error: ' + err.message, 'error');
+    }).then(() => {
+        navigator.clipboard.writeText(rekeningInfo).then(() => {
+            showToast('✅ Info rekening DI-COPY! Paste ke WA admin.', 'success');
         });
+        isProcessingPayment = false;
+        
+        // Show modal/info
+        alert(rekeningInfo);
+    }).catch(err => {
+        console.error('Save payment failed:', err);
+        isProcessingPayment = false;
+        alert(rekeningInfo);
+    });
 }
+
 // ========================================
-// 5. TOAST NOTIFICATIONS
+// 5. TOAST NOTIFICATIONS (UNCHANGED)
 // ========================================
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -291,10 +224,7 @@ function showToast(message, type = 'success') {
     toast.textContent = message;
     document.body.appendChild(toast);
 
-    // Animate in
     requestAnimationFrame(() => toast.style.transform = 'translateX(0)');
-
-    // Remove
     setTimeout(() => {
         toast.style.transform = 'translateX(400px)';
         setTimeout(() => toast.remove(), 400);
@@ -302,7 +232,7 @@ function showToast(message, type = 'success') {
 }
 
 // ========================================
-// 6. LIVE NOTIFICATIONS
+// 6. LIVE NOTIFICATIONS (UNCHANGED)
 // ========================================
 const notifications = [
     "Doni Jakarta upgrade PREMIUM! 🎉",
@@ -319,33 +249,38 @@ function initLiveNotifications() {
     let idx = 0;
 
     function showNotif() {
-        notifEl.textContent = notifications[idx];
-        notifEl.classList.add('show');
-
-        setTimeout(() => {
-            notifEl.classList.remove('show');
-            idx = (idx + 1) % notifications.length;
-        }, 8000);
+        if (notifEl) {
+            notifEl.textContent = notifications[idx];
+            notifEl.classList.add('show');
+            setTimeout(() => {
+                notifEl.classList.remove('show');
+                idx = (idx + 1) % notifications.length;
+            }, 8000);
+        }
     }
 
     setTimeout(showNotif, 2000);
     setInterval(showNotif, 10000);
 }
-initLiveNotifications();
 
 // ========================================
-// 7. INIT
+// 7. INIT & SESSION RESTORE
 // ========================================
-console.log('✅ All systems ready!');
-// 🔥 TAMBAHKAN DI PALING BAWAH
+console.log('✅ GAS Backend Ready! URL:', GAS_URL);
+
 window.addEventListener('DOMContentLoaded', () => {
+    // Restore session
     const savedUserId = localStorage.getItem('userId');
+    const savedRole = localStorage.getItem('userRole');
+    
     if (savedUserId && !currentUser) {
-        console.log('🔄 Restoring session for user:', savedUserId);
-        fetch(`api/register.php?action=user&id=${savedUserId}`)
-            .then(res => res.json())
-            .then(user => {
-                if (user.id) updateUserUI(user);
-            });
+        console.log('🔄 Restoring session:', savedUserId);
+        currentUser = { user_id: savedUserId };
+        checkUserEntitlement();
     }
+    
+    // Init notifications
+    initLiveNotifications();
 });
+
+console.log('✅ Nihongo Mastery v2.1 LIVE - GitHub Pages + GAS!');

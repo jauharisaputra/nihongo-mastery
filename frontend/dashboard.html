@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Nihongo Mastery</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:
+                linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .dashboard-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: 1s;
+            background:
+                linear-gradient(90deg,
+                    #ff6b6b,
+                    #ffd700,
+                    #00ff88);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .results-table th {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            text-align: left;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-cert {
+            background: #ffd700;
+            color: black;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-cert:hover {
+            transform: scale(1.05);
+        }
+
+        .cert-section {
+            margin-top: 40px;
+            background:
+                linear-gradient(135deg,
+                    rgba(255, 215, 0, 0.1),
+                    rgba(0, 255, 136, 0.1));
+            border: 2px solid #ffd700;
+            border-radius: 30px;
+            padding: 35px;
+            text-align: center;
+        }
+
+        .certificate-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: black;
+            max-width: 750px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 25px;
+            position: relative;
+        }
+
+        .certificate-card .logo {
+            width: 110px;
+            margin-bottom: 15px;
+        }
+
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .signature-area img {
+            width: 180px;
+        }
+
+        .verified {
+            background: gold;
+            color: black;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .cta-primary {
+            background:
+                linear-gradient(90deg,
+                    #ffd700,
+                    #ff9800);
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 25px;
+            font-size: 1rem;
+        }
+
+        .logout-btn {
+            background: #ff4757;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 8px solid #fff;
+            border-top: 8px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: gold;
+        }
+
+        select {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+        }
+
+        @media(max-width:768px) {
+            .signature-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOADING -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <h2>Generating PDF...</h2>
+    </div>
+
+    <div class="dashboard-container">
+
+        <!-- HEADER -->
+        <header style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:20px;
+        ">
+            <h1>
+                🎓 Dashboard
+                <span id="userNameDash" style="color:#ffd700;">
+                    Loading...
+                </span>
+            </h1>
+
+            <button onclick="logout()" class="logout-btn">
+                Logout
+            </button>
+        </header>
+
+        <!-- STATS -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <h3>📊 Progress</h3>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width:0%;">
+                    </div>
+                </div>
+
+                <span id="progressText" style="
+                    font-size:1.5rem;
+                    font-weight:bold;
+                    color:#ffd700;
+                ">
+                    0%
+                </span>
+            </div>
+
+            <div class="stat-card">
+                <h3>📈 Total Ujian</h3>
+
+                <span id="totalExams" style="
+                    font-size:2rem;
+                    font-weight:bold;
+                    color:#00ff88;
+                ">
+                    0
+                </span>
+            </div>
+
+            <div class="stat-card">
+                <h3>⭐ Best Score</h3>
+
+                <span id="bestScore" style="
+                    font-size:2rem;
+                    font-weight:bold;
+                    color:#ffd700;
+                ">
+                    -
+                </span>
+            </div>
+
+        </section>
+
+        <!-- RESULTS -->
+        <section>
+
+            <h2>📋 Hasil Ujian</h2>
+
+            <table class="results-table">
+
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="resultsTbody">
+
+                    <tr>
+                        <td colspan="4" class="no-data">
+                            Loading...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- CERTIFICATE -->
+        <section class="cert-section" id="certSection" style="display:none;">
+
+            <h2 style="color:#ffd700;">
+                🏆 Sertifikat Terbaik
+            </h2>
+
+            <div class="certificate-card">
+
+                <!-- LOGO -->
+                <img src="assets/images/logo/logo.png" class="logo" alt="Logo">
+
+                <h2 id="certTitle">
+                    Sertifikat JLPT
+                </h2>
+
+                <p style="font-size:1.2rem;">
+                    Dianugerahkan kepada:
+                </p>
+
+                <h1 id="certName" style="color:#1a1a3e;">
+                    Your Name
+                </h1>
+
+                <h2 id="certScore" style="color:#00aa55;">
+                    85%
+                </h2>
+
+                <!-- SIGNATURE -->
+                <div class="signature-area">
+
+                    <div>
+
+                        <img src="assets/images/developer/TTD.jpg" alt="Signature">
+
+                        <hr>
+
+                        <strong>
+                            Director Nihongo Mastery
+                        </strong>
+
+                    </div>
+
+                    <div class="verified">
+                        VERIFIED CERTIFICATE
+                    </div>
+
+                </div>
+
+                <button onclick="downloadCert()" class="cta-primary">
+                    📥 Download PDF
+                </button>
+
+            </div>
+
+        </section>
+        <!-- CTA -->
+        <div style="text-align:center; margin:50px 0;">
+            <select id="examSelect">
+                <!-- J.TEST -->
+                <optgroup label="🎯 J.TEST D-E">
+                    <option value="jtest/de/written/v1">📖 J.TEST D-E Written v1</option>
+                    <option value="jtest/de/written/v1-lite">📖 J.TEST D-E Written v1 Lite</option>
+                    <option value="jtest/de/written/v2">📖 J.TEST D-E Written v2</option>
+                    <option value="jtest/de/written/v2-lite">📖 J.TEST D-E Written v2 Lite</option>
+                    <option value="jtest/de/listening/v1">🎧 J.TEST D-E Listening v1</option>
+                    <option value="jtest/de/listening/v1-lite">🎧 J.TEST D-E Listening v1 Lite</option>
+                    <option value="jtest/de/listening/v2">🎧 J.TEST D-E Listening v2</option>
+                    <option value="jtest/de/listening/v2-lite">🎧 J.TEST D-E Listening v2 Lite</option>
+
+
+                </optgroup>
+
+                <!-- JLPT -->
+                <optgroup label="📖 JLPT N5">
+                    <option value="jlpt/n5/written/v1">📝 JLPT N5 Written v1</option>
+                    <option value="jlpt/n5/written/v1-lite">📝 JLPT N5 Written v1 Lite</option>
+                    <option value="jlpt/n5/written/v2">📝 JLPT N5 Written v2</option>
+                    <option value="jlpt/n5/written/v2-lite">📝 JLPT N5 Written v2 Lite</option>
+                    <option value="jlpt/n5/listening/v1">🎧 JLPT N5 Listening v1</option>
+                    <option value="jlpt/n5/listening/v1-lite">🎧 JLPT N5 Listening v1 Lite</option>
+                    <option value="jlpt/n5/listening/v2">🎧 JLPT N5 Listening v2</option>
+                    <option value="jlpt/n5/listening/v2-lite">🎧 JLPT N5 Listening v2 Lite</option>
+                </optgroup>
+
+                <!-- JFT -->
+                <optgroup label="📝 JFT Basic">
+                    <option value="jft/basic/written/v1">📝 JFT Basic Written v1</option>
+                    <option value="jft/basic/written/v1-lite">📝 JFT Basic Written v1 Lite</option>
+                    <option value="jft/basic/written/v2">📝 JFT Basic Written v2</option>
+                    <option value="jft/basic/written/v2-lite">📝 JFT Basic Written v2 Lite</option>
+                    <option value="jft/basic/listening/v1">🎧 JFT Basic Listening v1</option>
+                    <option value="jft/basic/listening/v1-lite">🎧 JFT Basic Listening v1 Lite</option>
+                    <option value="jft/basic/listening/v2">🎧 JFT Basic Listening v2</option>
+                    <option value="jft/basic/listening/v2-lite">🎧 JFT Basic Listening v2 Lite</option>
+                </optgroup>
+            </select>
+
+            <br><br>
+
+            <button class="cta-primary" onclick="startNewExam()" style="font-size: 1.3rem; padding: 18px 40px;">
+                🔄 Mulai Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- JSPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        const USER_ID = 3;
+
+        loadDashboard();
+
+        function loadDashboard() {
+
+            Promise.all([
+                fetch(`api/register.php?action=user&id=${USER_ID}`),
+                fetch(`api/register.php?action=results&user_id=${USER_ID}`)
+            ])
+
+                .then(([u, r]) =>
+                    Promise.all([
+                        u.json(),
+                        r.json()
+                    ])
+                )
+
+                .then(([user, data]) => {
+
+                    document.getElementById('userNameDash')
+                        .textContent =
+                        user.name || 'Jauhari Saputra';
+
+                    document.getElementById('certName')
+                        .textContent =
+                        user.name || 'Jauhari Saputra';
+
+                    updateResults(data.results || []);
+
+                })
+
+                .catch(err => {
+
+                    console.error(err);
+
+                });
+
+        }
+
+        function updateResults(results) {
+
+            const tbody =
+                document.getElementById('resultsTbody');
+
+            if (results.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4"
+                            class="no-data">
+                            Belum ada hasil ujian
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            tbody.innerHTML = '';
+
+            let best = 0;
+
+            results.forEach(result => {
+
+                const score =
+                    parseFloat(result.score);
+
+                const row =
+                    document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${result.exam.toUpperCase()}</td>
+
+                    <td>
+                        <strong style="
+                            color:
+                            ${score >= 80 ? '#00ff88' : '#ffd700'};
+                        ">
+                            ${score.toFixed(0)}%
+                        </strong>
+                    </td>
+
+                    <td>${result.date}</td>
+
+                    <td>
+                        <button class="btn-cert"
+                            onclick="viewCert(
+                                '${result.exam}',
+                                ${score}
+                            )">
+
+                            🏆 Sertifikat
+
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+
+                if (score > best) {
+                    best = score;
+                }
+
+            });
+
+            document.getElementById('bestScore')
+                .textContent =
+                best.toFixed(0) + '%';
+
+            document.getElementById('totalExams')
+                .textContent =
+                results.length;
+
+            viewCert(
+                results[0].exam,
+                parseFloat(results[0].score)
+            );
+
+        }
+
+        function viewCert(exam, score) {
+
+            document.getElementById('certTitle')
+                .textContent =
+                `Sertifikat ${exam.toUpperCase()}`;
+
+            document.getElementById('certScore')
+                .textContent =
+                score.toFixed(0) + '%';
+
+            document.getElementById('certSection')
+                .style.display = 'block';
+
+            const percent =
+                Math.min(Math.round(score), 100);
+
+            document.getElementById('progressFill')
+                .style.width =
+                percent + '%';
+
+            document.getElementById('progressText')
+                .textContent =
+                percent + '%';
+
+        }
+
+        // ==========================
+        // CONVERT IMAGE TO BASE64
+        // ==========================
+
+        async function toBase64(url) {
+
+            const response =
+                await fetch(url);
+
+            const blob =
+                await response.blob();
+
+            return new Promise(resolve => {
+
+                const reader =
+                    new FileReader();
+
+                reader.onloadend = () =>
+                    resolve(reader.result);
+
+                reader.readAsDataURL(blob);
+
+            });
+
+        }
+
+        // ==========================
+        // DOWNLOAD CERTIFICATE PDF
+        // ==========================
+
+        async function downloadCert() {
+
+            try {
+
+                document.getElementById('loadingOverlay')
+                    .style.display = 'flex';
+
+                const {
+                    jsPDF
+                } =
+                    window.jspdf;
+
+                const doc =
+                    new jsPDF('landscape');
+
+                const name =
+                    document.getElementById('certName')
+                        .textContent;
+
+                const title =
+                    document.getElementById('certTitle')
+                        .textContent;
+
+                const score =
+                    document.getElementById('certScore')
+                        .textContent;
+
+                const date =
+                    new Date()
+                        .toLocaleDateString('id-ID');
+
+                // LOAD IMAGES
+                const logo =
+                    await toBase64(
+                        'assets/images/logo/logo.png'
+                    );
+
+                const sign =
+                    await toBase64(
+                        'assets/images/developer/TTD.jpg'
+                    );
+
+                // BACKGROUND
+                doc.setFillColor(248, 246, 240);
+                doc.rect(0, 0, 297, 210, 'F');
+
+                // BORDER
+                doc.setDrawColor(212, 175, 55);
+                doc.setLineWidth(4);
+                doc.rect(10, 10, 277, 190);
+
+                doc.setLineWidth(1);
+                doc.rect(15, 15, 267, 180);
+
+                // LOGO
+                doc.addImage(
+                    logo,
+                    'PNG',
+                    20,
+                    18,
+                    30,
+                    30
+                );
+
+                // TITLE
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(30);
+
+                doc.text(
+                    'SERTIFIKAT PRESTASI',
+                    148.5,
+                    45, {
+                    align: 'center'
+                }
+                );
+
+                // SUBTITLE
+                doc.setFontSize(18);
+
+                doc.setFont('helvetica', 'normal');
+
+                doc.text(
+                    'Diberikan kepada',
+                    148.5,
+                    70, {
+                    align: 'center'
+                }
+                );
+
+                // NAME
+                doc.setFont('times', 'bold');
+
+                doc.setFontSize(32);
+
+                doc.setTextColor(0, 102, 204);
+
+                doc.text(
+                    name,
+                    148.5,
+                    95, {
+                    align: 'center'
+                }
+                );
+
+                // DESCRIPTION
+                doc.setFont('helvetica', 'normal');
+
+                doc.setFontSize(16);
+
+                doc.setTextColor(50, 50, 50);
+
+                doc.text(
+                    'Atas keberhasilan menyelesaikan ujian',
+                    148.5,
+                    115, {
+                    align: 'center'
+                }
+                );
+
+                // EXAM
+                doc.setFont('helvetica', 'bold');
+
+                doc.setFontSize(22);
+
+                doc.setTextColor(0, 153, 102);
+
+                doc.text(
+                    title,
+                    148.5,
+                    132, {
+                    align: 'center'
+                }
+                );
+
+                // SCORE
+                doc.setFontSize(24);
+
+                doc.setTextColor(255, 140, 0);
+
+                doc.text(
+                    `Score: ${score}`,
+                    148.5,
+                    150, {
+                    align: 'center'
+                }
+                );
+
+                // SIGNATURE
+                doc.addImage(
+                    sign,
+                    'JPEG',
+                    190,
+                    145,
+                    45,
+                    25
+                );
+
+                doc.line(
+                    185,
+                    172,
+                    245,
+                    172
+                );
+
+                doc.setFontSize(12);
+
+                doc.setTextColor(40, 40, 40);
+
+                doc.text(
+                    'Director Nihongo Mastery',
+                    215,
+                    178, {
+                    align: 'center'
+                }
+                );
+
+                // VERIFIED
+                doc.setFillColor(255, 215, 0);
+
+                doc.roundedRect(
+                    20,
+                    150,
+                    50,
+                    18,
+                    3,
+                    3,
+                    'F'
+                );
+
+                doc.setTextColor(0);
+
+                doc.setFontSize(10);
+
+                doc.text(
+                    'VERIFIED CERTIFICATE',
+                    45,
+                    161, {
+                    align: 'center'
+                }
+                );
+
+                // DATE
+                doc.setFontSize(11);
+
+                doc.text(
+                    `Tanggal: ${date}`,
+                    25,
+                    180
+                );
+
+                // FOOTER
+                doc.setFontSize(9);
+
+                doc.setTextColor(100);
+
+                doc.text(
+                    'Generated by Nihongo Mastery System',
+                    148.5,
+                    195, {
+                    align: 'center'
+                }
+                );
+
+                // SAVE
+                doc.save(
+                    `sertifikat-${name}.pdf`
+                );
+
+                document.getElementById('loadingOverlay')
+                    .style.display = 'none';
+
+            } catch (error) {
+
+                console.error(error);
+
+                document.getElementById('loadingOverlay')
+                    .style.display = 'none';
+
+                alert(
+                    'Gagal generate PDF. Cek path logo atau tanda tangan.'
+                );
+
+            }
+
+        }
+
+        function logout() {
+
+            localStorage.clear();
+
+            window.location.href =
+                'index.php';
+
+        }
+
+        function startNewExam() {
+
+            const select =
+                document.getElementById('examSelect');
+
+            const examPath =
+                select.value;
+
+            window.location.href =
+                `exam.html?path=${examPath}&user=${USER_ID}`;
+
+        }
+    </script>
+
+</body>
+
+</html>
