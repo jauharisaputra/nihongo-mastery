@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+   
 
     <style>
         * {
@@ -460,11 +461,11 @@
 
                 <br><br>
 
-                <button class="cta-primary" onclick="downloadCert()">
-
-                    📥 Download PDF
-
-                </button>
+            <button id="downloadBtn" onclick="downloadCertificate()" class="download-btn">
+            
+                📥 Download PDF
+            
+            </button>
 
             </div>
 
@@ -692,47 +693,122 @@
                 `exam.html?path=${encodeURIComponent(examPath)}&user=${USER_ID}`;
         }
 
-        async function downloadCert() {
+   async function downloadCertificate() {
 
-            const cert =
-                document.getElementById(
-                    'certificateCard'
-                );
+        const button =
+            document.getElementById(
+                'downloadBtn'
+            );
+
+        const certificate =
+            document.getElementById(
+                'certificateCard'
+            );
+
+        try {
+
+            // =====================================
+            // HIDE BUTTON
+            // =====================================
+
+            button.style.display = 'none';
+
+            // =====================================
+            // WAIT RENDER
+            // =====================================
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 300)
+            );
+
+            // =====================================
+            // CANVAS
+            // =====================================
 
             const canvas =
-                await html2canvas(cert, {
-                    scale: 2
+                await html2canvas(certificate, {
+
+                    scale: 2,
+
+                    useCORS: true,
+
+                    backgroundColor: '#ffffff'
+
                 });
 
             const imgData =
-                canvas.toDataURL('image/png');
+                canvas.toDataURL(
+                    'image/jpeg',
+                    1.0
+                );
+
+            // =====================================
+            // PDF
+            // =====================================
 
             const {
                 jsPDF
             } = window.jspdf;
 
             const pdf =
-                new jsPDF(
-                    'landscape',
-                    'mm',
-                    'a4'
-                );
+                new jsPDF({
+
+                    orientation: 'landscape',
+
+                    unit: 'mm',
+
+                    format: 'a4'
+
+                });
+
+            const pdfWidth =
+                297;
+
+            const pdfHeight =
+                210;
 
             pdf.addImage(
+
                 imgData,
-                'PNG',
-                5,
-                5,
-                287,
-                200
+
+                'JPEG',
+
+                0,
+
+                0,
+
+                pdfWidth,
+
+                pdfHeight
+
             );
+
+            // =====================================
+            // SAVE
+            // =====================================
 
             pdf.save(
-                'nihongo-certificate.pdf'
+                `certificate-${USER_NAME}.pdf`
             );
 
-        }
+        } catch (err) {
 
+            console.error(err);
+
+            alert(
+                'Gagal membuat PDF'
+            );
+
+        } finally {
+
+            // =====================================
+            // SHOW BUTTON AGAIN
+            // =====================================
+
+            button.style.display =
+                'inline-block';
+        }
+    }
         function logout() {
 
             localStorage.clear();
