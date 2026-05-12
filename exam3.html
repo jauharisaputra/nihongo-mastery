@@ -794,168 +794,108 @@
 
         }
 
-    
+        // ====================================
+        // FINISH EXAM
+        // ====================================
 
-    // ====================================
-    // GOOGLE APPS SCRIPT URL
-    // ====================================
+        function finishExam(
+            status = 'Selesai'
+        ) {
 
-    const GAS_URL =
-        'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
+            if (submitted) return;
 
-    // ====================================
-    // FINISH EXAM
-    // ====================================
+            submitted = true;
 
-    async function finishExam(
-        status = 'Selesai'
-    ) {
+            clearInterval(timer);
 
-        if (submitted) return;
+            const totalQuestions =
+                quizData.length || 1;
 
-        submitted = true;
+            const finalScore =
+                Math.round(
+                    (score / totalQuestions) * 100
+                );
 
-        clearInterval(timer);
+            const saveData = {
 
-        const totalQuestions =
-            quizData.length || 1;
+                method: 'save_result',
 
-        const finalScore =
-            Math.round(
-                (score / totalQuestions) * 100
+                user_id:
+                    parseInt(userId) || 3,
+
+                exam:
+                    getExamId(),
+
+                score:
+                    finalScore,
+
+                status:
+                    status,
+
+                nama:
+                    namaPeserta,
+
+                kelas:
+                    kelasPeserta,
+
+                mode:
+                    examData?.mode || '',
+
+                version:
+                    examData?.version || '',
+
+                path:
+                    examPath
+
+            };
+
+            console.log(
+                'SAVE DATA:',
+                saveData
             );
 
-   const saveData = {
+            fetch('api/register.php', {
 
-            action: 'save_result',
+                method: 'POST',
 
-            user_id:
-                String(userId),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
 
-            exam_path:
-                examPath,
+                body:
+                    JSON.stringify(saveData)
 
-            exam:
-                getExamId(),
+            })
 
-            score:
-                finalScore,
+                .then(res => res.json())
 
-            total_questions:
-                quizData.length,
+                .then(data => {
 
-            time_used:
-                examData?.duration
-                    ? examData.duration - duration
-                    : 0,
+                    console.log(data);
 
-            status:
-                status,
+                    alert(
+                        `🎉 Skor akhir Anda: ${finalScore}%`
+                    );
 
-            nama:
-                namaPeserta,
+                    window.location.href =
+                        `dashboard.html?user=${userId}`;
 
-            kelas:
-                kelasPeserta,
+                })
 
-            mode:
-                examData?.mode || '',
+                .catch(err => {
 
-            version:
-                examData?.version || '',
+                    console.error(err);
 
-            created_at:
-                new Date().toISOString()
+                    alert(
+                        'Gagal menyimpan hasil ujian'
+                    );
 
-        };
-        console.log(
-            'SAVE DATA:',
-            saveData
-        );
-
-        try {
-
-            // ====================================
-            // SEND TO GOOGLE APPS SCRIPT
-            // ====================================
-
-            const response =
-                await fetch(GAS_URL, {
-
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    },
-
-                    body:
-                        JSON.stringify(saveData)
+                    window.location.href =
+                        `dashboard.html?user=${userId}`;
 
                 });
 
-            // ====================================
-            // RESPONSE TEXT
-            // ====================================
-
-            const text =
-                await response.text();
-
-            console.log(
-                'RAW RESPONSE:',
-                text
-            );
-
-            let result = {};
-
-            try {
-
-                result =
-                    JSON.parse(text);
-
-            } catch (e) {
-
-                console.warn(
-                    'Response bukan JSON valid'
-                );
-
-            }
-
-            console.log(
-                'PARSED RESPONSE:',
-                result
-            );
-
-            // ====================================
-            // SUCCESS
-            // ====================================
-
-            alert(
-                `🎉 Skor akhir Anda: ${finalScore}%`
-            );
-
-            window.location.href =
-                `dashboard.html?user=${userId}`;
-
-        } catch (err) {
-
-            console.error(
-                'SUBMIT ERROR:',
-                err
-            );
-
-            // Tetap tampilkan skor
-            alert(
-                `🎉 Skor akhir Anda: ${finalScore}%`
-            );
-
-            window.location.href =
-                `dashboard.html?user=${userId}`;
-
         }
-
-    }
-
-
 
     </script>
 

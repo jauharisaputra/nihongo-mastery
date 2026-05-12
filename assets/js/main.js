@@ -418,6 +418,7 @@ function checkUserEntitlement() {
 
     console.log('ROLE:', role);
 
+    // PREMIUM ACCESS
     if (
         role === 'premium' ||
         role === 'pro' ||
@@ -426,12 +427,22 @@ function checkUserEntitlement() {
 
         console.log('💎 PREMIUM USER');
 
+        // AUTO REDIRECT
+        if (
+            window.location.pathname.includes('index') ||
+            window.location.pathname === '/' ||
+            window.location.pathname.endsWith('/')
+        ) {
+
+            window.location.href =
+                'dashboard.html';
+        }
+
     } else {
 
         console.log('🆓 FREE USER');
     }
 }
-
 // ========================================
 // START FREE TRIAL
 // ========================================

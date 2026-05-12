@@ -9,11 +9,6 @@
 
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- PDF -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -32,7 +27,7 @@
         }
 
         .dashboard-container {
-            max-width: 1300px;
+            max-width: 1200px;
             margin: auto;
             padding: 20px;
         }
@@ -46,13 +41,18 @@
             margin-bottom: 30px;
         }
 
+        .header h1 {
+            margin: 0;
+        }
+
         .user-role {
             background: gold;
             color: black;
-            padding: 10px 18px;
+            padding: 8px 18px;
             border-radius: 999px;
             font-weight: bold;
             display: inline-block;
+            margin-top: 10px;
         }
 
         .logout-btn {
@@ -83,17 +83,21 @@
             padding: 25px;
         }
 
+        .card h3 {
+            margin-top: 0;
+        }
+
         .big-number {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
             color: gold;
         }
 
         .progress-bar {
-            height: 22px;
+            height: 20px;
             border-radius: 20px;
             background:
-                rgba(255, 255, 255, 0.15);
+                rgba(255, 255, 255, 0.2);
             overflow: hidden;
             margin-top: 15px;
         }
@@ -112,6 +116,8 @@
         .results-table {
             width: 100%;
             border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 20px;
         }
 
         .results-table th {
@@ -163,6 +169,22 @@
             margin-bottom: 20px;
         }
 
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: gold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: gold;
+        }
+
+        .error {
+            color: #ffb3b3;
+        }
+
         .debug-box {
             margin-top: 20px;
             background: rgba(0, 0, 0, 0.4);
@@ -172,124 +194,15 @@
             overflow-x: auto;
         }
 
-        /* CERTIFICATE */
-
-        .cert-section {
-            margin-top: 50px;
-        }
-
-        .certificate-card {
-            position: relative;
-            overflow: hidden;
-            background:
-                linear-gradient(135deg,
-                    #fff8dc,
-                    #fff,
-                    #f8f8f8);
-            border: 10px solid gold;
-            border-radius: 30px;
-            padding: 50px;
-            color: #1a1a1a;
-            text-align: center;
-            box-shadow:
-                0 15px 50px rgba(0, 0, 0, 0.3);
-        }
-
-        .certificate-card::before {
-            content: "";
-            position: absolute;
-            inset: 15px;
-            border: 3px dashed gold;
-            border-radius: 20px;
-            pointer-events: none;
-        }
-
-        .cert-logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-
-        .cert-main-title {
-            font-size: 3rem;
-            color: #1a237e;
-            margin-bottom: 10px;
-        }
-
-        .cert-subtitle {
-            font-size: 1.2rem;
-            color: #555;
-        }
-
-        .cert-name {
-            font-size: 3rem;
-            color: #0f172a;
-            margin: 25px 0;
-            font-weight: bold;
-        }
-
-        .cert-score {
-            font-size: 2rem;
-            color: #16a34a;
-            margin-bottom: 20px;
-        }
-
-        .cert-desc {
-            max-width: 700px;
-            margin: auto;
-            line-height: 1.8;
-            color: #333;
-            font-size: 1.1rem;
-        }
-
-        .signature-area {
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: end;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .signature-box img {
-            width: 180px;
-            margin-bottom: -10px;
-        }
-
-        .signature-box hr {
-            border: none;
-            border-top: 2px solid #000;
-        }
-
-        .verified-badge {
-            background:
-                linear-gradient(135deg,
-                    #00c853,
-                    #00e676);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            font-weight: bold;
-            box-shadow:
-                0 5px 20px rgba(0, 200, 83, 0.4);
-        }
-
         @media(max-width:768px) {
 
-            .certificate-card {
-                padding: 25px;
-            }
-
-            .cert-main-title {
-                font-size: 2rem;
-            }
-
-            .cert-name {
-                font-size: 2rem;
-            }
-
-            .signature-area {
+            .header {
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
+            }
+
+            .results-table {
+                font-size: 14px;
             }
         }
     </style>
@@ -387,7 +300,7 @@
                 <tbody id="resultsTbody">
 
                     <tr>
-                        <td colspan="3">
+                        <td colspan="3" class="loading">
                             Loading...
                         </td>
                     </tr>
@@ -402,74 +315,6 @@
 
         </div>
 
-        <!-- CERTIFICATE -->
-        <section class="cert-section" id="certSection" style="display:none;">
-
-            <h2 style="color:#ffd700;">
-                🏆 Sertifikat Otomatis
-            </h2>
-
-            <div class="certificate-card" id="certificateCard">
-
-                <img src="assets/images/logo/logo.png" class="cert-logo">
-
-                <h1 class="cert-main-title">
-                    CERTIFICATE OF ACHIEVEMENT
-                </h1>
-
-                <p class="cert-subtitle">
-                    Nihongo Mastery Premium Certification
-                </p>
-
-                <p style="margin-top:40px;">
-                    Diberikan kepada:
-                </p>
-
-                <div class="cert-name" id="certName">
-                    Student Name
-                </div>
-
-                <div class="cert-score" id="certScore">
-                    100%
-                </div>
-
-                <div class="cert-desc" id="certDesc">
-                    Telah berhasil menyelesaikan ujian Bahasa Jepang dengan hasil terbaik dan memenuhi standar kelulusan
-                    Nihongo Mastery.
-                </div>
-
-                <div class="signature-area">
-
-                    <div class="signature-box">
-
-                        <img src="assets/images/developer/TTD.jpg">
-
-                        <hr>
-
-                        <strong>
-                            Director Nihongo Mastery
-                        </strong>
-
-                    </div>
-
-                    <div class="verified-badge">
-                        ✔ VERIFIED CERTIFICATE
-                    </div>
-
-                </div>
-
-                <br><br>
-
-                <button class="cta-primary" onclick="downloadCert()">
-
-                    📥 Download PDF
-
-                </button>
-
-            </div>
-
-        </section>
-
         <!-- EXAM -->
         <div class="exam-box">
 
@@ -479,17 +324,41 @@
 
             <select id="examSelect">
 
-                <option value="jlpt/n5/written/v1">
-                    JLPT N5 Written
-                </option>
+                <optgroup label="🎯 J.TEST">
 
-                <option value="jlpt/n5/listening/v1">
-                    JLPT N5 Listening
-                </option>
+                    <option value="jtest/de/written/v1">
+                        📖 J.TEST Written v1
+                    </option>
 
-                <option value="jft/basic/written/v1">
-                    JFT Basic Written
-                </option>
+                    <option value="jtest/de/listening/v1">
+                        🎧 J.TEST Listening v1
+                    </option>
+
+                </optgroup>
+
+                <optgroup label="📖 JLPT N5">
+
+                    <option value="jlpt/n5/written/v1">
+                        📝 JLPT N5 Written v1
+                    </option>
+
+                    <option value="jlpt/n5/listening/v1">
+                        🎧 JLPT N5 Listening v1
+                    </option>
+
+                </optgroup>
+
+                <optgroup label="📝 JFT Basic">
+
+                    <option value="jft/basic/written/v1">
+                        📝 JFT Basic Written v1
+                    </option>
+
+                    <option value="jft/basic/listening/v1">
+                        🎧 JFT Basic Listening v1
+                    </option>
+
+                </optgroup>
 
             </select>
 
@@ -507,6 +376,10 @@
 
     <script>
 
+        // =========================================
+        // USER DATA
+        // =========================================
+
         const USER_ID =
             localStorage.getItem('userId') || '3';
 
@@ -516,8 +389,17 @@
         const USER_ROLE =
             localStorage.getItem('userRole') || 'premium';
 
+        // =========================================
+        // GOOGLE APPS SCRIPT URL
+        // GANTI DENGAN WEB APP URL GAS ANDA
+        // =========================================
+
         const GAS_URL =
             'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
+
+        // =========================================
+        // INIT
+        // =========================================
 
         document.getElementById(
             'userNameDash'
@@ -533,6 +415,10 @@
 
         loadDashboard();
 
+        // =========================================
+        // DEBUG
+        // =========================================
+
         function debug(msg) {
 
             console.log(msg);
@@ -541,6 +427,10 @@
                 'debugBox'
             ).innerHTML += `<br>${msg}`;
         }
+
+        // =========================================
+        // LOAD DASHBOARD
+        // =========================================
 
         async function loadDashboard() {
 
@@ -554,25 +444,71 @@
                 const response =
                     await fetch(url);
 
+                debug('STATUS: ' + response.status);
+
                 const text =
                     await response.text();
 
                 debug('RAW RESPONSE: ' + text);
 
-                const data =
-                    JSON.parse(text);
+                let data = {};
 
-                updateResults(
-                    data.results || []
-                );
+                try {
+
+                    data =
+                        JSON.parse(text);
+
+                } catch (jsonErr) {
+
+                    throw new Error(
+                        'Response bukan JSON valid'
+                    );
+                }
+
+                console.log(data);
+
+                if (
+                    data.results
+                ) {
+
+                    updateResults(
+                        data.results
+                    );
+
+                } else {
+
+                    updateResults([]);
+
+                }
 
             } catch (err) {
 
-                debug(err.message);
+                console.error(err);
 
+                debug('ERROR: ' + err.message);
+
+                document.getElementById(
+                    'resultsTbody'
+                ).innerHTML = `
+                    <tr>
+                        <td colspan="3"
+                            class="empty error">
+
+                            Gagal load data
+
+                            <br><br>
+
+                            ${err.message}
+
+                        </td>
+                    </tr>
+                `;
             }
-
         }
+
+        // =========================================
+        // UPDATE RESULTS
+        // =========================================
 
         function updateResults(results) {
 
@@ -585,8 +521,11 @@
 
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="3">
+                        <td colspan="3"
+                            class="empty">
+
                             Belum ada hasil ujian
+
                         </td>
                     </tr>
                 `;
@@ -597,30 +536,26 @@
             tbody.innerHTML = '';
 
             let bestScore = 0;
-            let bestExam = '';
 
             results.forEach(result => {
 
                 const score =
-                    Number(result.score || 0);
+                    parseFloat(result.score || 0);
 
                 if (score > bestScore) {
 
                     bestScore = score;
-                    bestExam =
-                        result.exam_path || '';
-
                 }
 
                 tbody.innerHTML += `
                     <tr>
 
                         <td>
-                            ${result.exam_path || '-'}
+                            ${result.exam || '-'}
                         </td>
 
                         <td>
-                            ${score}%
+                            ${score.toFixed(0)}%
                         </td>
 
                         <td>
@@ -639,47 +574,22 @@
             document.getElementById(
                 'bestScore'
             ).textContent =
-                bestScore + '%';
+                bestScore.toFixed(0) + '%';
 
             document.getElementById(
                 'progressText'
             ).textContent =
-                bestScore + '%';
+                bestScore.toFixed(0) + '%';
 
             document.getElementById(
                 'progressFill'
             ).style.width =
                 bestScore + '%';
-
-            // CERTIFICATE
-            if (bestScore >= 80) {
-
-                document.getElementById(
-                    'certSection'
-                ).style.display =
-                    'block';
-
-                document.getElementById(
-                    'certName'
-                ).textContent =
-                    USER_NAME;
-
-                document.getElementById(
-                    'certScore'
-                ).textContent =
-                    `${bestScore}%`;
-
-                document.getElementById(
-                    'certDesc'
-                ).innerHTML =
-                    `
-                    Telah berhasil menyelesaikan
-                    <strong>${bestExam}</strong>
-                    dengan nilai terbaik dan memenuhi standar kelulusan Nihongo Mastery Premium.
-                    `;
-            }
-
         }
+
+        // =========================================
+        // START EXAM
+        // =========================================
 
         function startNewExam() {
 
@@ -692,46 +602,9 @@
                 `exam.html?path=${encodeURIComponent(examPath)}&user=${USER_ID}`;
         }
 
-        async function downloadCert() {
-
-            const cert =
-                document.getElementById(
-                    'certificateCard'
-                );
-
-            const canvas =
-                await html2canvas(cert, {
-                    scale: 2
-                });
-
-            const imgData =
-                canvas.toDataURL('image/png');
-
-            const {
-                jsPDF
-            } = window.jspdf;
-
-            const pdf =
-                new jsPDF(
-                    'landscape',
-                    'mm',
-                    'a4'
-                );
-
-            pdf.addImage(
-                imgData,
-                'PNG',
-                5,
-                5,
-                287,
-                200
-            );
-
-            pdf.save(
-                'nihongo-certificate.pdf'
-            );
-
-        }
+        // =========================================
+        // LOGOUT
+        // =========================================
 
         function logout() {
 

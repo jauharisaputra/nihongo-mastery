@@ -1,7 +1,7 @@
 // ========================================
 // NIHONGO MASTERY - GOOGLE APPS SCRIPT API
 // FINAL FIXED VERSION 2026
-// RESULTS + PAYMENTS + ADMIN SECURITY
+// SUPPORT RESULTS DASHBOARD
 // ========================================
 
 // ========================================
@@ -9,9 +9,6 @@
 // ========================================
 const SHEET_ID =
   '1fOH-0m6afdeZwjFfORs1spjhr2EYD8rtlwRK843wZDw';
-
-const ADMIN_KEY =
-  'nihongo_mastery_admin_2026';
 
 // ========================================
 // MAIN HANDLER
@@ -22,6 +19,19 @@ function doGet(e) {
 
 function doPost(e) {
   return handleRequest(e);
+}
+
+// ========================================
+// OPTIONS / CORS
+// ========================================
+function doOptions() {
+
+  return ContentService
+    .createTextOutput('')
+    .setMimeType(
+      ContentService.MimeType.TEXT
+    );
+
 }
 
 // ========================================
@@ -62,9 +72,7 @@ function handleRequest(e) {
 
       } catch (err) {
 
-        console.log(
-          'JSON parse failed'
-        );
+        console.log('JSON parse failed');
 
       }
 
@@ -75,6 +83,9 @@ function handleRequest(e) {
       JSON.stringify(data)
     );
 
+    // ========================================
+    // ACTION / METHOD
+    // ========================================
     const action =
       String(
         data.action ||
@@ -82,11 +93,11 @@ function handleRequest(e) {
         ''
       ).trim();
 
-    console.log(
-      'ACTION:',
-      action
-    );
+    console.log('ACTION:', action);
 
+    // ========================================
+    // OPEN SPREADSHEET
+    // ========================================
     const ss =
       SpreadsheetApp.openById(
         SHEET_ID
@@ -176,8 +187,7 @@ function handleRequest(e) {
       case 'get_pending_payments':
 
         return getPendingPayments(
-          ss,
-          data
+          ss
         );
 
       // ========================================
@@ -188,7 +198,8 @@ function handleRequest(e) {
         return jsonResponse({
 
           success: false,
-          error: 'Invalid action'
+          error:
+            'Invalid action'
 
         });
 
@@ -212,15 +223,10 @@ function handleRequest(e) {
 // ========================================
 // REGISTER USER
 // ========================================
-function registerUser(
-  ss,
-  data
-) {
+function registerUser(ss, data) {
 
   const userSheet =
-    ss.getSheetByName(
-      'users'
-    );
+    ss.getSheetByName('users');
 
   if (!userSheet) {
 
@@ -248,30 +254,9 @@ function registerUser(
     String(data.name || 'User');
 
   // ========================================
-  // VALIDATE EMAIL
-  // ========================================
-  if (
-    !email ||
-    !email.includes('@')
-  ) {
-
-    return jsonResponse({
-
-      success: false,
-      error: 'Invalid email'
-
-    });
-
-  }
-
-  // ========================================
   // CHECK EXISTING USER
   // ========================================
-  for (
-    let i = 1;
-    i < users.length;
-    i++
-  ) {
+  for (let i = 1; i < users.length; i++) {
 
     const existingEmail =
       String(users[i][1] || '')
@@ -310,8 +295,7 @@ function registerUser(
   // CREATE USER
   // ========================================
   const userId =
-    Utilities
-    .getUuid()
+    Utilities.getUuid()
     .slice(0, 8);
 
   userSheet.appendRow([
@@ -319,7 +303,7 @@ function registerUser(
     userId,
     email,
     name,
-    'student',
+    'premium',
     new Date()
 
   ]);
@@ -339,7 +323,7 @@ function registerUser(
       name,
 
     role:
-      'student'
+      'premium'
 
   });
 
@@ -348,15 +332,10 @@ function registerUser(
 // ========================================
 // CHECK USER
 // ========================================
-function checkUser(
-  ss,
-  email
-) {
+function checkUser(ss, email) {
 
   const userSheet =
-    ss.getSheetByName(
-      'users'
-    );
+    ss.getSheetByName('users');
 
   if (!userSheet) {
 
@@ -380,11 +359,7 @@ function checkUser(
     .trim()
     .toLowerCase();
 
-  for (
-    let i = 1;
-    i < users.length;
-    i++
-  ) {
+  for (let i = 1; i < users.length; i++) {
 
     const existingEmail =
       String(users[i][1] || '')
@@ -392,8 +367,7 @@ function checkUser(
       .toLowerCase();
 
     if (
-      existingEmail ===
-      targetEmail
+      existingEmail === targetEmail
     ) {
 
       return jsonResponse({
@@ -431,15 +405,10 @@ function checkUser(
 // ========================================
 // SAVE RESULT
 // ========================================
-function saveResult(
-  ss,
-  data
-) {
+function saveResult(ss, data) {
 
   const resultSheet =
-    ss.getSheetByName(
-      'results'
-    );
+    ss.getSheetByName('results');
 
   if (!resultSheet) {
 
@@ -454,30 +423,55 @@ function saveResult(
   }
 
   const resultId =
-    Utilities
-    .getUuid()
+    Utilities.getUuid()
     .slice(0, 8);
+
+  const userId =
+    String(data.user_id || '');
+
+  const exam =
+    String(
+      data.exam ||
+      data.exam_path ||
+      ''
+    );
+
+  const score =
+    Number(data.score || 0);
+
+  const status =
+    String(
+      data.status ||
+      'Selesai'
+    );
+
+  const nama =
+    String(data.nama || '');
+
+  const kelas =
+    String(data.kelas || '');
+
+  const mode =
+    String(data.mode || '');
+
+  const version =
+    String(data.version || '');
+
+  const path =
+    String(data.path || '');
 
   resultSheet.appendRow([
 
     resultId,
-
-    data.user_id || '',
-
-    data.exam_path || '',
-
-    Number(
-      data.score || 0
-    ),
-
-    Number(
-      data.total_questions || 0
-    ),
-
-    Number(
-      data.time_used || 0
-    ),
-
+    userId,
+    exam,
+    score,
+    status,
+    nama,
+    kelas,
+    mode,
+    version,
+    path,
     new Date()
 
   ]);
@@ -500,9 +494,7 @@ function getResults(
 ) {
 
   const resultSheet =
-    ss.getSheetByName(
-      'results'
-    );
+    ss.getSheetByName('results');
 
   if (!resultSheet) {
 
@@ -523,11 +515,7 @@ function getResults(
 
   let results = [];
 
-  for (
-    let i = 1;
-    i < rows.length;
-    i++
-  ) {
+  for (let i = 1; i < rows.length; i++) {
 
     const rowUserId =
       String(rows[i][1] || '');
@@ -545,21 +533,33 @@ function getResults(
         user_id:
           rows[i][1],
 
-        exam_path:
+        exam:
           rows[i][2],
 
         score:
           rows[i][3],
 
-        total_questions:
+        status:
           rows[i][4],
 
-        time_used:
+        nama:
           rows[i][5],
+
+        kelas:
+          rows[i][6],
+
+        mode:
+          rows[i][7],
+
+        version:
+          rows[i][8],
+
+        path:
+          rows[i][9],
 
         date:
           formatDate(
-            rows[i][6]
+            rows[i][10]
           )
 
       });
@@ -591,86 +591,45 @@ function submitPayment(
   data
 ) {
 
-  const lock =
-    LockService
-    .getScriptLock();
+  const paymentSheet =
+    ss.getSheetByName('payments');
 
-  lock.waitLock(5000);
-
-  try {
-
-    const paymentSheet =
-      ss.getSheetByName(
-        'payments'
-      );
-
-    if (!paymentSheet) {
-
-      return jsonResponse({
-
-        success: false,
-        error:
-          'Sheet payments not found'
-
-      });
-
-    }
-
-    const amount =
-      Number(
-        data.amount || 0
-      );
-
-    if (amount <= 0) {
-
-      return jsonResponse({
-
-        success: false,
-        error:
-          'Invalid amount'
-
-      });
-
-    }
-
-    const paymentId =
-      Utilities
-      .getUuid()
-      .slice(0, 8);
-
-    paymentSheet.appendRow([
-
-      paymentId,
-
-      data.user_id || '',
-
-      data.plan || 'premium',
-
-      amount,
-
-      data.order_id || '',
-
-      'pending',
-
-      data.proof || '',
-
-      new Date()
-
-    ]);
+  if (!paymentSheet) {
 
     return jsonResponse({
 
-      success: true,
-      payment_id: paymentId,
-      status: 'pending'
+      success: false,
+      error:
+        'Sheet payments not found'
 
     });
 
-  } finally {
-
-    lock.releaseLock();
-
   }
+
+  const paymentId =
+    Utilities.getUuid()
+    .slice(0, 8);
+
+  paymentSheet.appendRow([
+
+    paymentId,
+    data.user_id || '',
+    data.plan || 'premium',
+    Number(data.amount || 0),
+    data.order_id || '',
+    'pending',
+    data.proof || '',
+    new Date()
+
+  ]);
+
+  return jsonResponse({
+
+    success: true,
+    payment_id: paymentId,
+    status: 'pending'
+
+  });
 
 }
 
@@ -682,32 +641,11 @@ function approvePayment(
   data
 ) {
 
-  // ========================================
-  // ADMIN SECURITY
-  // ========================================
-  if (
-    data.admin_key !==
-    ADMIN_KEY
-  ) {
-
-    return jsonResponse({
-
-      success: false,
-      error: 'Unauthorized'
-
-    });
-
-  }
-
   const paymentSheet =
-    ss.getSheetByName(
-      'payments'
-    );
+    ss.getSheetByName('payments');
 
   const userSheet =
-    ss.getSheetByName(
-      'users'
-    );
+    ss.getSheetByName('users');
 
   if (
     !paymentSheet ||
@@ -738,11 +676,7 @@ function approvePayment(
   // ========================================
   // UPDATE PAYMENT
   // ========================================
-  for (
-    let i = 1;
-    i < payments.length;
-    i++
-  ) {
+  for (let i = 1; i < payments.length; i++) {
 
     if (
       payments[i][4] ==
@@ -751,9 +685,7 @@ function approvePayment(
 
       paymentSheet
         .getRange(i + 1, 6)
-        .setValue(
-          'approved'
-        );
+        .setValue('approved');
 
       userId =
         payments[i][1];
@@ -787,11 +719,7 @@ function approvePayment(
     .getDataRange()
     .getValues();
 
-  for (
-    let i = 1;
-    i < users.length;
-    i++
-  ) {
+  for (let i = 1; i < users.length; i++) {
 
     if (
       users[i][0] ==
@@ -822,32 +750,10 @@ function approvePayment(
 // ========================================
 // GET PENDING PAYMENTS
 // ========================================
-function getPendingPayments(
-  ss,
-  data
-) {
-
-  // ========================================
-  // ADMIN SECURITY
-  // ========================================
-  if (
-    data.admin_key !==
-    ADMIN_KEY
-  ) {
-
-    return jsonResponse({
-
-      success: false,
-      error: 'Unauthorized'
-
-    });
-
-  }
+function getPendingPayments(ss) {
 
   const paymentSheet =
-    ss.getSheetByName(
-      'payments'
-    );
+    ss.getSheetByName('payments');
 
   if (!paymentSheet) {
 
@@ -868,16 +774,11 @@ function getPendingPayments(
 
   let result = [];
 
-  for (
-    let i = 1;
-    i < payments.length;
-    i++
-  ) {
+  for (let i = 1; i < payments.length; i++) {
 
     if (
-      String(
-        payments[i][5]
-      ) === 'pending'
+      String(payments[i][5]) ===
+      'pending'
     ) {
 
       result.push({
@@ -926,9 +827,7 @@ function getPendingPayments(
 // ========================================
 // FORMAT DATE
 // ========================================
-function formatDate(
-  dateObj
-) {
+function formatDate(dateObj) {
 
   if (!dateObj) {
 
@@ -939,10 +838,7 @@ function formatDate(
   return Utilities.formatDate(
 
     new Date(dateObj),
-
-    Session
-    .getScriptTimeZone(),
-
+    Session.getScriptTimeZone(),
     'yyyy-MM-dd HH:mm'
 
   );
@@ -959,9 +855,7 @@ function jsonResponse(obj) {
       JSON.stringify(obj)
     )
     .setMimeType(
-      ContentService
-      .MimeType
-      .JSON
+      ContentService.MimeType.JSON
     );
 
 }
@@ -969,9 +863,7 @@ function jsonResponse(obj) {
 // ========================================
 // HTML INCLUDE
 // ========================================
-function include(
-  filename
-) {
+function include(filename) {
 
   return HtmlService
     .createHtmlOutputFromFile(

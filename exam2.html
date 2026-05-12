@@ -9,10 +9,6 @@
     <link rel="stylesheet" href="assets/css/style.css">
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         body {
             margin: 0;
             padding: 20px;
@@ -72,7 +68,6 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: bold;
-            transition: 0.3s;
         }
 
         .cta-primary:hover {
@@ -118,11 +113,6 @@
             border-color: #dc2626 !important;
         }
 
-        .option-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.95;
-        }
-
         .section-box {
             background: #f8fafc;
             border-left: 5px solid #6366f1;
@@ -135,7 +125,6 @@
             font-weight: bold;
             color: #1e3a8a;
             margin-bottom: 10px;
-            font-size: 1.1rem;
         }
 
         .audio-wrap {
@@ -161,7 +150,6 @@
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
-            line-height: 1.6;
         }
 
         #nextBtn,
@@ -173,16 +161,6 @@
             background:
                 linear-gradient(90deg, #16a34a, #22c55e);
             color: white;
-        }
-
-        .debug-box {
-            margin-top: 15px;
-            background: #111827;
-            color: #f9fafb;
-            padding: 15px;
-            border-radius: 10px;
-            overflow-x: auto;
-            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -238,11 +216,15 @@
             <div id="optionsArea"></div>
 
             <button id="nextBtn" class="cta-primary hidden" onclick="nextQuestion()">
+
                 → Soal Berikutnya
+
             </button>
 
             <button id="submitBtn" class="cta-primary hidden" onclick="finishExam()">
+
                 ✔ Kumpulkan
+
             </button>
 
         </div>
@@ -251,9 +233,9 @@
 
     <script>
 
-        // ====================================
+        // =========================
         // URL PARAMS
-        // ====================================
+        // =========================
 
         const urlParams =
             new URLSearchParams(window.location.search);
@@ -261,26 +243,25 @@
         const pathParam =
             urlParams.get('path');
 
-        const examType =
-            urlParams.get('exam');
-
-        const modeParam =
-            urlParams.get('mode');
-
-        const versionParam =
-            urlParams.get('version');
-
         const userId =
             urlParams.get('user') ||
             localStorage.getItem('userId') ||
             '3';
 
-        // ====================================
+        // =========================
+        // HAPUS PROTEKSI PREMIUM
+        // =========================
+
+        // FIX:
+        // Semua ujian sekarang bisa diakses
+        // termasuk JTEST Written & Listening
+
+        // =========================
         // GLOBAL VARIABLES
-        // ====================================
+        // =========================
 
         let examPath =
-            pathParam || buildExamPath();
+            pathParam || 'jlpt/n5/written/v1';
 
         let examData = null;
         let quizData = [];
@@ -294,78 +275,25 @@
         let namaPeserta = '';
         let kelasPeserta = '';
 
-        // ====================================
+        // =========================
         // INIT
-        // ====================================
+        // =========================
 
         document.getElementById('userMeta')
             .textContent = `User: ${userId}`;
 
-        console.log('PATH PARAM:', pathParam);
-        console.log('FINAL EXAM PATH:', examPath);
-
         loadExam();
 
-        // ====================================
-        // BUILD EXAM PATH
-        // ====================================
-
-        function buildExamPath() {
-
-            if (!examType) {
-
-                return 'jlpt/n5/written/v1';
-
-            }
-
-            if (examType.includes('/')) {
-
-                return examType;
-
-            }
-
-            const mode =
-                modeParam || 'written';
-
-            const version =
-                versionParam || 'v1';
-
-            if (examType === 'jlpt-n5') {
-
-                return `jlpt/n5/${mode}/${version}`;
-
-            }
-
-            if (examType === 'jft-basic') {
-
-                return `jft/basic/${mode}/${version}`;
-
-            }
-
-            if (examType === 'jtest-de') {
-
-                return `jtest/de/${mode}/${version}`;
-
-            }
-
-            return `jlpt/n5/written/v1`;
-
-        }
-
-        // ====================================
+        // =========================
         // LOAD EXAM
-        // ====================================
+        // =========================
 
         function loadExam() {
 
-            // FIX PENTING:
-            // Folder exam ada di assets/exams
-            // BUKAN exams/
-
             const jsonPath =
-                `assets/exams/${examPath}/exam.json`;
+                `exams/${examPath}/exam.json`;
 
-            console.log('LOAD JSON:', jsonPath);
+            console.log('LOAD EXAM:', jsonPath);
 
             fetch(jsonPath)
 
@@ -389,8 +317,7 @@
 
                     examData = data;
 
-                    quizData =
-                        flattenQuestions(data);
+                    quizData = flattenQuestions(data);
 
                     duration =
                         data.duration || 1800;
@@ -412,13 +339,12 @@
 
                         document.getElementById('audioWrap')
                             .innerHTML = `
-                                <div class="audio-wrap">
-                                    <audio controls>
-                                        <source src="${data.audio}" type="audio/mpeg">
-                                    </audio>
-                                </div>
-                            `;
-
+                            <div class="audio-wrap">
+                                <audio controls>
+                                    <source src="${data.audio}" type="audio/mpeg">
+                                </audio>
+                            </div>
+                        `;
                     }
 
                 })
@@ -429,39 +355,25 @@
 
                     document.getElementById('loginBox')
                         .innerHTML = `
-                            <div class="error-box">
-                                <strong>❌ ${err.message}</strong>
-
-                                <br><br>
-
-                                Path ujian:
-                                <strong>${examPath}</strong>
-
-                                <br><br>
-
-                                File yang dicari:
-                                <strong>
-                                    assets/exams/${examPath}/exam.json
-                                </strong>
-
-                                <div class="debug-box">
-                                    ROOT FIX:
-                                    menggunakan folder
-                                    assets/exams/
-                                </div>
-                            </div>
-                        `;
+                        <div class="error-box">
+                            ❌ ${err.message}
+                            <br><br>
+                            Path:
+                            <strong>${examPath}</strong>
+                        </div>
+                    `;
 
                 });
 
         }
 
-        // ====================================
+        // =========================
         // FLATTEN QUESTIONS
-        // ====================================
+        // =========================
 
         function flattenQuestions(data) {
 
+            // FORMAT 1
             if (
                 Array.isArray(data.questions)
             ) {
@@ -470,6 +382,7 @@
 
             }
 
+            // FORMAT 2
             if (
                 Array.isArray(data.sections)
             ) {
@@ -482,15 +395,9 @@
                         .forEach(q => {
 
                             output.push({
-
                                 ...q,
-
-                                sectionName:
-                                    section.name,
-
-                                sectionIntro:
-                                    section.intro
-
+                                sectionName: section.name,
+                                sectionIntro: section.intro
                             });
 
                         });
@@ -505,9 +412,9 @@
 
         }
 
-        // ====================================
+        // =========================
         // START EXAM
-        // ====================================
+        // =========================
 
         function startExam() {
 
@@ -546,9 +453,9 @@
 
         }
 
-        // ====================================
+        // =========================
         // RENDER QUESTION
-        // ====================================
+        // =========================
 
         function renderQuestion() {
 
@@ -581,7 +488,6 @@
 
                 html += `
                     <div class="section-box">
-
                         <div class="section-title">
                             ${q.sectionName}
                         </div>
@@ -589,7 +495,6 @@
                         <div>
                             ${q.sectionIntro}
                         </div>
-
                     </div>
                 `;
 
@@ -598,7 +503,7 @@
             if (q.image) {
 
                 html += `
-                    <img src="${q.image}" alt="Question">
+                    <img src="${q.image}">
                 `;
 
             }
@@ -658,9 +563,9 @@
 
         }
 
-        // ====================================
+        // =========================
         // SELECT ANSWER
-        // ====================================
+        // =========================
 
         function selectAnswer(
             btn,
@@ -722,9 +627,9 @@
 
         }
 
-        // ====================================
+        // =========================
         // NEXT QUESTION
-        // ====================================
+        // =========================
 
         function nextQuestion() {
 
@@ -734,9 +639,9 @@
 
         }
 
-        // ====================================
+        // =========================
         // TIMER
-        // ====================================
+        // =========================
 
         function startTimer() {
 
@@ -760,13 +665,11 @@
 
         }
 
-        // ====================================
+        // =========================
         // FORMAT TIME
-        // ====================================
+        // =========================
 
         function formatTime(sec) {
-
-            sec = Math.max(sec, 0);
 
             const m =
                 Math.floor(sec / 60);
@@ -774,13 +677,17 @@
             const s =
                 sec % 60;
 
-            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            return `
+                ${String(m).padStart(2, '0')}
+                :
+                ${String(s).padStart(2, '0')}
+            `;
 
         }
 
-        // ====================================
+        // =========================
         // GET EXAM ID
-        // ====================================
+        // =========================
 
         function getExamId() {
 
@@ -794,168 +701,108 @@
 
         }
 
-    
+        // =========================
+        // FINISH EXAM
+        // =========================
 
-    // ====================================
-    // GOOGLE APPS SCRIPT URL
-    // ====================================
+        function finishExam(
+            status = 'Selesai'
+        ) {
 
-    const GAS_URL =
-        'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
+            if (submitted) return;
 
-    // ====================================
-    // FINISH EXAM
-    // ====================================
+            submitted = true;
 
-    async function finishExam(
-        status = 'Selesai'
-    ) {
+            clearInterval(timer);
 
-        if (submitted) return;
+            const totalQuestions =
+                quizData.length || 1;
 
-        submitted = true;
+            const finalScore =
+                Math.round(
+                    (score / totalQuestions) * 100
+                );
 
-        clearInterval(timer);
+            const saveData = {
 
-        const totalQuestions =
-            quizData.length || 1;
+                method: 'save_result',
 
-        const finalScore =
-            Math.round(
-                (score / totalQuestions) * 100
+                user_id:
+                    parseInt(userId) || 3,
+
+                exam:
+                    getExamId(),
+
+                score:
+                    finalScore,
+
+                status:
+                    status,
+
+                nama:
+                    namaPeserta,
+
+                kelas:
+                    kelasPeserta,
+
+                mode:
+                    examData?.mode || '',
+
+                version:
+                    examData?.version || '',
+
+                path:
+                    examPath
+
+            };
+
+            console.log(
+                'SAVE DATA:',
+                saveData
             );
 
-   const saveData = {
+            fetch('api/register.php', {
 
-            action: 'save_result',
+                method: 'POST',
 
-            user_id:
-                String(userId),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
 
-            exam_path:
-                examPath,
+                body:
+                    JSON.stringify(saveData)
 
-            exam:
-                getExamId(),
+            })
 
-            score:
-                finalScore,
+                .then(res => res.json())
 
-            total_questions:
-                quizData.length,
+                .then(data => {
 
-            time_used:
-                examData?.duration
-                    ? examData.duration - duration
-                    : 0,
+                    console.log(data);
 
-            status:
-                status,
+                    alert(
+                        `🎉 Skor akhir Anda: ${finalScore}%`
+                    );
 
-            nama:
-                namaPeserta,
+                    window.location.href =
+                        `dashboard.html?user=${userId}`;
 
-            kelas:
-                kelasPeserta,
+                })
 
-            mode:
-                examData?.mode || '',
+                .catch(err => {
 
-            version:
-                examData?.version || '',
+                    console.error(err);
 
-            created_at:
-                new Date().toISOString()
+                    alert(
+                        'Gagal menyimpan hasil ujian'
+                    );
 
-        };
-        console.log(
-            'SAVE DATA:',
-            saveData
-        );
-
-        try {
-
-            // ====================================
-            // SEND TO GOOGLE APPS SCRIPT
-            // ====================================
-
-            const response =
-                await fetch(GAS_URL, {
-
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8'
-                    },
-
-                    body:
-                        JSON.stringify(saveData)
+                    window.location.href =
+                        `dashboard.html?user=${userId}`;
 
                 });
 
-            // ====================================
-            // RESPONSE TEXT
-            // ====================================
-
-            const text =
-                await response.text();
-
-            console.log(
-                'RAW RESPONSE:',
-                text
-            );
-
-            let result = {};
-
-            try {
-
-                result =
-                    JSON.parse(text);
-
-            } catch (e) {
-
-                console.warn(
-                    'Response bukan JSON valid'
-                );
-
-            }
-
-            console.log(
-                'PARSED RESPONSE:',
-                result
-            );
-
-            // ====================================
-            // SUCCESS
-            // ====================================
-
-            alert(
-                `🎉 Skor akhir Anda: ${finalScore}%`
-            );
-
-            window.location.href =
-                `dashboard.html?user=${userId}`;
-
-        } catch (err) {
-
-            console.error(
-                'SUBMIT ERROR:',
-                err
-            );
-
-            // Tetap tampilkan skor
-            alert(
-                `🎉 Skor akhir Anda: ${finalScore}%`
-            );
-
-            window.location.href =
-                `dashboard.html?user=${userId}`;
-
         }
-
-    }
-
-
 
     </script>
 
