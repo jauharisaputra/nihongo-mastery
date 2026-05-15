@@ -7,7 +7,11 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Konfirmasi Pembayaran - Nihongo Mastery</title>
+    <title>
+        Upgrade Premium - Nihongo Mastery
+    </title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
 
     <style>
         * {
@@ -18,152 +22,215 @@
             margin: 0;
             padding: 20px;
             font-family: Arial, sans-serif;
+
             background:
                 linear-gradient(135deg,
-                    #0f172a,
-                    #1e293b,
-                    #111827);
+                    #0f2027,
+                    #203a43,
+                    #2c5364);
+
             min-height: 100vh;
             color: white;
         }
 
         .container {
-            max-width: 650px;
+
+            max-width: 700px;
+
             margin: auto;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 35px;
+
+        }
+
+        .card {
+
+            background:
+                rgba(255, 255, 255, 0.08);
+
+            border:
+                1px solid rgba(255, 255, 255, 0.1);
+
+            backdrop-filter: blur(12px);
+
+            border-radius: 30px;
+
+            padding: 40px;
+
             box-shadow:
-                0 20px 50px rgba(0, 0, 0, 0.4);
+                0 15px 50px rgba(0, 0, 0, 0.3);
+
         }
 
         h1 {
+
             margin-top: 0;
-            font-size: 32px;
-            text-align: center;
-            margin-bottom: 10px;
+
+            color: gold;
+
         }
 
-        .subtitle {
-            text-align: center;
-            color: #cbd5e1;
-            margin-bottom: 30px;
-        }
+        .price {
 
-        .bank-box {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
+            font-size: 3rem;
 
-        .bank-item {
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
             font-weight: bold;
-            color: #f1f5f9;
+
+            color: #00ff88;
+
+            margin: 20px 0;
+
         }
 
-        input,
-        select {
+        .feature-list {
+
+            margin: 30px 0;
+
+            padding: 0;
+
+            list-style: none;
+
+        }
+
+        .feature-list li {
+
+            padding: 12px 0;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.08);
+
+        }
+
+        .feature-list li:last-child {
+
+            border-bottom: none;
+
+        }
+
+        .pay-btn {
+
             width: 100%;
-            padding: 15px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            margin-bottom: 20px;
-            font-size: 15px;
-            outline: none;
-        }
 
-        input::placeholder {
-            color: #cbd5e1;
-        }
-
-        select option {
-            color: black;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #60a5fa;
-        }
-
-        .preview-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        #preview {
-            max-width: 100%;
-            max-height: 350px;
-            border-radius: 16px;
-            display: none;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .upload-btn {
-            width: 100%;
-            padding: 18px;
             border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg,
-                    #2563eb,
-                    #1d4ed8);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
+
+            padding: 18px;
+
+            border-radius: 18px;
+
             cursor: pointer;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            background:
+                linear-gradient(135deg,
+                    #ffd700,
+                    #ff9800);
+
+            color: black;
+
             transition: 0.3s;
-            margin-top: 20px;
+
         }
 
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                0 10px 30px rgba(37, 99, 235, 0.4);
+        .pay-btn:hover {
+
+            transform: translateY(-3px);
+
         }
 
-        .upload-btn:disabled {
-            opacity: .7;
-            cursor: not-allowed;
-        }
+        .secondary-btn {
 
-        .success-box {
-            margin-top: 20px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
+            width: 100%;
+
+            border: none;
+
             padding: 15px;
-            border-radius: 14px;
+
+            border-radius: 18px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            background:
+                rgba(255, 255, 255, 0.1);
+
+            color: white;
+
+            margin-top: 15px;
+
+        }
+
+        .status-box {
+
+            margin-top: 25px;
+
+            padding: 20px;
+
+            border-radius: 18px;
+
             display: none;
+
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-            color: #93c5fd;
+        .pending {
+
+            background:
+                rgba(255, 193, 7, 0.15);
+
+            border:
+                1px solid rgba(255, 193, 7, 0.3);
+
+            color: #ffd54f;
+
         }
 
-        .order-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            padding: 15px;
-            margin-bottom: 25px;
+        .success {
+
+            background:
+                rgba(0, 255, 136, 0.15);
+
+            border:
+                1px solid rgba(0, 255, 136, 0.3);
+
+            color: #00ff88;
+
         }
 
-        .order-box p {
-            margin: 8px 0;
-            color: #e2e8f0;
+        .debug-box {
+
+            margin-top: 25px;
+
+            background:
+                rgba(0, 0, 0, 0.4);
+
+            padding: 20px;
+
+            border-radius: 18px;
+
+            font-size: 0.9rem;
+
+            overflow-x: auto;
+
+        }
+
+        .pill {
+
+            display: inline-block;
+
+            background:
+                rgba(255, 255, 255, 0.12);
+
+            padding: 10px 18px;
+
+            border-radius: 999px;
+
+            margin-bottom: 20px;
+
+            font-weight: bold;
+
         }
     </style>
 
@@ -173,326 +240,277 @@
 
     <div class="container">
 
-        <h1>💳 Konfirmasi Pembayaran</h1>
+        <div class="card">
 
-        <p class="subtitle">
-            Upload bukti transfer untuk aktivasi premium
-        </p>
+            <div class="pill" id="userInfo">
 
-        <div class="bank-box">
+                User: Loading...
 
-            <div class="bank-item">
-                🏦 BRI: <strong>0336 0105 7405 505</strong>
-            </div>
-            <div class="bank-item">
-                🏦 BNI: <strong>1208403768</strong>
             </div>
 
-            <div class="bank-item">
-                📱 DANA: <strong>085159296337</strong>
-            </div>
-
-            <div class="bank-item">
-                👤 A/N: <strong>Jauhari Saputra</strong>
-            </div>
-
-        </div>
-
-        <div class="order-box">
+            <h1>
+                👑 Upgrade Premium
+            </h1>
 
             <p>
-                <strong>Order ID:</strong>
-                <span id="displayOrderId"></span>
+
+                Dapatkan akses penuh semua fitur Nihongo Mastery Premium.
+
             </p>
 
-            <p>
-                <strong>Plan:</strong>
-                <span id="displayPlan"></span>
-            </p>
+            <div class="price">
 
-            <p>
-                <strong>Nominal:</strong>
-                Rp <span id="displayAmount"></span>
-            </p>
+                Rp 299.000
+
+            </div>
+
+            <ul class="feature-list">
+
+                <li>
+                    ✅ Semua soal premium unlocked
+                </li>
+
+                <li>
+                    ✅ JLPT + JFT + JTEST lengkap
+                </li>
+
+                <li>
+                    ✅ Listening premium
+                </li>
+
+                <li>
+                    ✅ Sertifikat otomatis
+                </li>
+
+                <li>
+                    ✅ Dashboard premium
+                </li>
+
+                <li>
+                    ✅ Akses 30 hari
+                </li>
+
+            </ul>
+
+            <button class="pay-btn" onclick="submitPayment()">
+
+                💳 Bayar Premium
+
+            </button>
+
+            <button class="secondary-btn" onclick="backDashboard()">
+
+                ← Kembali Dashboard
+
+            </button>
+
+            <div class="status-box pending" id="pendingBox">
+
+                ⏳ Payment berhasil dikirim.
+                <br><br>
+
+                Menunggu approval admin.
+
+            </div>
+
+            <div class="status-box success" id="successBox">
+
+                ✅ Premium berhasil aktif.
+
+            </div>
+
+            <div class="debug-box" id="debugBox">
+
+                Debug:
+                waiting...
+
+            </div>
 
         </div>
-
-        <label>User ID</label>
-        <input type="text" id="userId" readonly>
-
-        <label>Order ID</label>
-        <input type="text" id="orderId" readonly>
-
-        <label>Plan</label>
-        <select id="plan">
-
-            <option value="pro">PRO</option>
-
-            <option value="premium">PREMIUM</option>
-
-            <option value="lifetime">LIFETIME</option>
-
-        </select>
-
-        <label>Nominal</label>
-        <input type="number" id="amount" readonly>
-
-        <label>Upload Bukti Transfer</label>
-        <input type="file" id="proof" accept="image/*">
-
-        <div class="preview-container">
-
-            <img id="preview">
-
-        </div>
-
-        <div class="loading" id="loadingText">
-            ⏳ Mengupload bukti pembayaran...
-        </div>
-
-        <div class="success-box" id="successBox">
-            ✅ Bukti transfer berhasil dikirim!
-        </div>
-
-        <button class="upload-btn" id="uploadBtn" onclick="uploadPayment()">
-
-            Upload Bukti Transfer
-
-        </button>
 
     </div>
 
     <script>
 
-        console.log('💳 Payment Page Loaded');
-
-        // ========================================
+        // =====================================
         // CONFIG
-        // ========================================
+        // =====================================
+
         const GAS_URL =
             'https://script.google.com/macros/s/AKfycbzdDuFwNNMQQUoV3YAhzJctS9M2t0wr8c3WDwIU5fc1q8Lb1mHmFAwsCUEXIL_s1zMC/exec';
 
-        let base64Image = '';
+        // =====================================
+        // USER
+        // =====================================
 
-        // ========================================
-        // GET URL PARAMS
-        // ========================================
-        const params =
-            new URLSearchParams(window.location.search);
-
-        const orderId =
-            params.get('order_id') || '';
-
-        const plan =
-            params.get('plan') || 'pro';
-
-        const amount =
-            params.get('amount') || '0';
-
-        const userId =
+        const USER_ID =
             localStorage.getItem('userId') || '';
 
-        // ========================================
-        // SET FORM VALUES
-        // ========================================
-        document.getElementById('orderId').value =
-            orderId;
+        const USER_NAME =
+            localStorage.getItem('userName') || 'User';
 
-        document.getElementById('userId').value =
-            userId;
+        // =====================================
+        // INIT
+        // =====================================
 
-        document.getElementById('plan').value =
-            plan;
+        document.getElementById(
+            'userInfo'
+        ).textContent =
+            `User: ${USER_NAME} (${USER_ID})`;
 
-        document.getElementById('amount').value =
-            amount;
+        debug(
+            'USER_ID: ' + USER_ID
+        );
 
-        // ========================================
-        // DISPLAY SUMMARY
-        // ========================================
-        document.getElementById('displayOrderId')
-            .textContent = orderId;
+        // =====================================
+        // DEBUG
+        // =====================================
 
-        document.getElementById('displayPlan')
-            .textContent = plan.toUpperCase();
+        function debug(msg) {
 
-        document.getElementById('displayAmount')
-            .textContent =
-            Number(amount).toLocaleString('id-ID');
+            console.log(msg);
 
-        // ========================================
-        // IMAGE PREVIEW
-        // ========================================
-        document.getElementById('proof')
-            .addEventListener('change', async function (e) {
+            document.getElementById(
+                'debugBox'
+            ).innerHTML +=
+                `<br>${msg}`;
 
-                const file =
-                    e.target.files[0];
-
-                if (!file) return;
-
-                // LIMIT 5MB
-                if (file.size > 5 * 1024 * 1024) {
-
-                    alert('Ukuran gambar maksimal 5MB');
-
-                    return;
-                }
-
-                try {
-
-                    base64Image =
-                        await toBase64(file);
-
-                    const preview =
-                        document.getElementById('preview');
-
-                    preview.src =
-                        base64Image;
-
-                    preview.style.display =
-                        'block';
-
-                    console.log('🖼️ Image Ready');
-
-                } catch (err) {
-
-                    console.error(err);
-
-                    alert('Gagal membaca gambar');
-                }
-            });
-
-        // ========================================
-        // FILE TO BASE64
-        // ========================================
-        function toBase64(file) {
-
-            return new Promise((resolve, reject) => {
-
-                const reader =
-                    new FileReader();
-
-                reader.readAsDataURL(file);
-
-                reader.onload =
-                    () => resolve(reader.result);
-
-                reader.onerror =
-                    error => reject(error);
-            });
         }
 
-        // ========================================
-        // UPLOAD PAYMENT
-        // ========================================
-        async function uploadPayment() {
+        // =====================================
+        // GENERATE ORDER ID
+        // =====================================
+
+        function generateOrderId() {
+
+            return 'INV-' +
+                Date.now();
+
+        }
+
+        // =====================================
+        // SUBMIT PAYMENT
+        // =====================================
+
+        async function submitPayment() {
 
             try {
 
-                if (!base64Image) {
+                const orderId =
+                    generateOrderId();
 
-                    alert(
-                        'Upload bukti transfer dulu!'
-                    );
+                const payload = {
 
-                    return;
-                }
+                    action:
+                        'submit_payment',
 
-                const btn =
-                    document.getElementById('uploadBtn');
+                    user_id:
+                        USER_ID,
 
-                const loading =
-                    document.getElementById('loadingText');
+                    plan:
+                        'premium',
 
-                btn.disabled = true;
+                    amount:
+                        299000,
 
-                loading.style.display =
-                    'block';
+                    order_id:
+                        orderId
 
-                console.log('📤 Upload Payment');
+                };
 
-                // ========================================
-                // SIMPLE REQUEST (NO CORS ISSUE)
-                // ========================================
+                debug(
+                    'SEND PAYMENT: ' +
+                    JSON.stringify(payload)
+                );
+
                 const response =
                     await fetch(GAS_URL, {
 
                         method: 'POST',
 
                         headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
+
+                            'Content-Type':
+                                'text/plain;charset=utf-8'
+
                         },
 
-                        body: JSON.stringify({
+                        body:
+                            JSON.stringify(payload)
 
-                            action: 'submit_payment',
-
-                            order_id:
-                                document.getElementById('orderId').value,
-
-                            user_id:
-                                document.getElementById('userId').value,
-
-                            plan:
-                                document.getElementById('plan').value,
-
-                            amount:
-                                document.getElementById('amount').value,
-
-                            proof:
-                                base64Image
-                        })
                     });
 
-                const data =
-                    await response.json();
+                const text =
+                    await response.text();
 
-                console.log('✅ RESPONSE:', data);
+                debug(
+                    'RAW RESPONSE: ' +
+                    text
+                );
 
-                loading.style.display =
-                    'none';
+                let result = {};
 
-                if (data.success) {
+                try {
 
-                    document.getElementById('successBox')
-                        .style.display = 'block';
+                    result =
+                        JSON.parse(text);
 
-                    setTimeout(() => {
+                } catch (err) {
 
-                        alert(
-                            'Bukti pembayaran berhasil dikirim!\n\nAdmin akan memverifikasi pembayaran Anda.'
-                        );
+                    debug(
+                        'JSON parse failed'
+                    );
 
-                        window.location.href =
-                            'index.html';
+                }
 
-                    }, 1000);
+                if (result.success) {
+
+                    document.getElementById(
+                        'pendingBox'
+                    ).style.display =
+                        'block';
+
+                    localStorage.setItem(
+                        'lastOrderId',
+                        orderId
+                    );
+
+                    alert(
+                        'Payment berhasil dikirim'
+                    );
 
                 } else {
 
-                    btn.disabled = false;
-
                     alert(
-                        'Upload gagal:\n' +
-                        data.error
+                        result.error ||
+                        'Payment gagal'
                     );
+
                 }
 
             } catch (err) {
 
                 console.error(err);
 
-                document.getElementById('loadingText')
-                    .style.display = 'none';
-
-                document.getElementById('uploadBtn')
-                    .disabled = false;
+                debug(err.message);
 
                 alert(
-                    'Upload gagal!\nPeriksa koneksi atau Apps Script.'
+                    'Gagal submit payment'
                 );
+
             }
+
+        }
+
+        // =====================================
+        // BACK
+        // =====================================
+
+        function backDashboard() {
+
+            window.location.href =
+                'dashboard.html';
+
         }
 
     </script>

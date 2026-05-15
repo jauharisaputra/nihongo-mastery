@@ -682,6 +682,16 @@
         </section>
 
         <!-- EXAM -->
+<div style="margin-bottom:30px;">
+
+    <button class="cta-primary" onclick="goPremium()" id="premiumBtn">
+
+        👑 Upgrade Premium
+
+    </button>
+
+</div>
+
         <div class="exam-box">
 
             <h2>
@@ -1163,6 +1173,13 @@
             }
 
         }
+
+        function goPremium() {
+
+                window.location.href =
+                    `payment.html?user=${USER_ID}`;
+
+            }
 
         // =====================================
         // LOGOUT
