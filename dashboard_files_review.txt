@@ -1755,6 +1755,876 @@ button:disabled {
 
 }
 
+=== index.html ===
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nihongo Mastery - 🎯 Lulus JLPT 90% Siswa!</title>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-Sgpy8gqZ2OuiWEXR"></script>
+
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f4f7fb;
+        color: #222;
+    }
+
+    .container {
+        width: 95%;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* =========================
+           HEADER USER
+        ========================= */
+    .user-header {
+        background: #111827;
+        padding: 12px 20px;
+        color: white;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+    }
+
+    .user-status {
+        background: #10b981;
+        padding: 5px 10px;
+        border-radius: 30px;
+        font-size: 12px;
+    }
+
+    .logout-btn {
+        margin-left: auto;
+        background: #ef4444;
+        border: none;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    /* =========================
+           HERO
+        ========================= */
+    .hero {
+        padding: 80px 20px;
+        text-align: center;
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.65),
+                rgba(0, 0, 0, 0.65)),
+            url('https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1200');
+
+        background-size: cover;
+        background-position: center;
+        border-radius: 0 0 30px 30px;
+        color: white;
+    }
+
+    .hero h1 {
+        font-size: 56px;
+        margin-bottom: 15px;
+    }
+
+    .hero p {
+        font-size: 20px;
+        opacity: 0.95;
+        margin-bottom: 25px;
+    }
+
+    .countdown {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
+        padding: 18px;
+        border-radius: 18px;
+        max-width: 420px;
+        margin: auto;
+        margin-bottom: 30px;
+    }
+
+    .countdown-label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .countdown-numbers {
+        font-size: 34px;
+        font-weight: bold;
+        color: #ffd54f;
+    }
+
+    .cta-primary {
+        background: linear-gradient(135deg, #ff6b6b, #ff9800);
+        border: none;
+        color: white;
+        padding: 16px 34px;
+        border-radius: 14px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 10px 25px rgba(255, 152, 0, 0.35);
+    }
+
+    .cta-primary:hover {
+        transform: translateY(-3px);
+    }
+
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.04);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* =========================
+           QUICK ACCESS
+        ========================= */
+    .quick-access {
+        margin-top: 35px;
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .divider {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .quick-access button {
+        border: none;
+        padding: 15px 28px;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+
+    .cta-secondary {
+        background: linear-gradient(135deg, #4facfe, #00c6fb);
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 198, 251, 0.35);
+    }
+
+    .cta-secondary:hover {
+        transform: translateY(-5px);
+    }
+
+    .cta-premium {
+        background: linear-gradient(135deg, #ffb347, #ffcc33);
+        color: #222;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(255, 193, 7, 0.35);
+    }
+
+    .cta-premium::before {
+        content: "🔥 BEST";
+        position: absolute;
+        top: 8px;
+        right: -30px;
+        background: #ff3b3b;
+        color: white;
+        font-size: 10px;
+        padding: 4px 30px;
+        transform: rotate(35deg);
+        font-weight: bold;
+    }
+
+    .cta-premium:hover {
+        transform: translateY(-5px);
+    }
+
+    /* =========================
+           PRICING
+        ========================= */
+    .pricing {
+        padding: 70px 20px;
+        text-align: center;
+    }
+
+    .pricing h2 {
+        font-size: 42px;
+        margin-bottom: 40px;
+    }
+
+    .pricing-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
+    }
+
+    .price-card {
+        background: white;
+        padding: 35px 25px;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: 0.3s;
+        position: relative;
+    }
+
+    .price-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .price-card h3 {
+        font-size: 26px;
+        margin-bottom: 14px;
+    }
+
+    .price-card p {
+        color: #666;
+        margin-bottom: 18px;
+    }
+
+    .price-card span {
+        display: block;
+        font-size: 34px;
+        font-weight: bold;
+        margin-bottom: 24px;
+        color: #111827;
+    }
+
+    .price-card button {
+        width: 100%;
+        border: none;
+        padding: 14px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .popular {
+        border: 3px solid #ff9800;
+    }
+
+    .popular::before {
+        content: "🔥 PALING POPULER";
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ff9800;
+        color: white;
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* =========================
+           LOGIN
+        ========================= */
+    .login {
+        padding: 70px 20px;
+        text-align: center;
+    }
+
+    .login h2 {
+        margin-bottom: 25px;
+        font-size: 36px;
+    }
+
+    /* =========================
+           TESTIMONI
+        ========================= */
+    .testimoni {
+        padding: 70px 20px;
+    }
+
+    .testimoni h2 {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 38px;
+    }
+
+    .testimoni-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 25px;
+    }
+
+    .testi-item {
+        background: white;
+        border-radius: 22px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .testi-item img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 18px;
+    }
+
+    .testi-item p {
+        color: #555;
+        margin-bottom: 14px;
+        line-height: 1.6;
+    }
+
+    /* =========================
+           DEVELOPER PROFILE
+        ========================= */
+    .developer-profile {
+        padding: 80px 20px;
+    }
+
+    .developer-profile h2 {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 38px;
+    }
+
+    .dev-card {
+        background: white;
+        border-radius: 28px;
+        padding: 35px;
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .dev-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #ffd54f;
+    }
+
+    .dev-info {
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .dev-info h3 {
+        font-size: 32px;
+        margin-bottom: 14px;
+    }
+
+    .dev-info p {
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 16px;
+    }
+
+    .dev-info small {
+        display: block;
+        margin-bottom: 24px;
+        color: #777;
+        line-height: 1.7;
+        font-size: 14px;
+    }
+
+    .dev-links {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .dev-links a {
+        text-decoration: none;
+        padding: 13px 20px;
+        border-radius: 14px;
+        font-weight: bold;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dev-links a:first-child {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .dev-links a:last-child {
+        background: #111827;
+        color: white;
+    }
+
+    .dev-links a:hover {
+        transform: translateY(-3px);
+    }
+
+    /* =========================
+           RESPONSIVE
+        ========================= */
+    @media(max-width:768px) {
+        .hero h1 {
+            font-size: 40px;
+        }
+
+        .hero p {
+            font-size: 18px;
+        }
+
+        .dev-card {
+            text-align: center;
+            justify-content: center;
+        }
+
+        .dev-links {
+            justify-content: center;
+        }
+
+        .quick-access button {
+            width: 100%;
+            max-width: 320px;
+        }
+    }
+    </style>
+</head>
+
+<body>
+
+    <!-- User Header -->
+    <header class="user-header" id="userHeader" style="display:none;">
+        <div class="user-info">
+            <img src="https://via.placeholder.com/40/ffd700/000000?text=U" class="user-avatar" id="userAvatar">
+
+            <span id="userNameDisplay">Welcome!</span>
+
+            <span class="user-status" id="userStatus">
+                Premium Active
+            </span>
+
+            <button class="logout-btn" onclick="logoutUser()">
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- HERO -->
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <h1>🎯 Nihongo Mastery</h1>
+
+                <p>
+                    5.247+ siswa lulus JLPT bulan ini.
+                    Mulai dari Rp 0!
+                </p>
+
+                <div class="countdown urgent" id="countdown">
+
+                    <span class="countdown-label">
+                        Promo Diskon 40% Berakhir Dalam:
+                    </span>
+
+                    <div id="countdown-timer" class="countdown-numbers">
+                        12:44:28
+                    </div>
+
+                </div>
+
+                <!-- Guest CTA -->
+                <div class="guest-cta" id="guestCTA">
+
+                    <button class="cta-primary pulse" onclick="startFreeTrial()">
+
+                        🚀 Mulai Free Lite SEKARANG
+
+                    </button>
+
+                    <small style="display:block; margin-top:14px; opacity:0.85;">
+                        ⏰ 10 menit saja! Akses JLPT N5 gratis
+                    </small>
+
+                </div>
+
+                <!-- QUICK ACCESS -->
+                <div class="quick-access">
+
+                    <button class="cta-secondary" onclick="startFreeTrial()">
+
+                        🚀 Free Lite
+
+                    </button>
+
+                    <span class="divider">ATAU</span>
+
+                    <button class="cta-premium" onclick="buyPlan('premium', 129000)">
+
+                        💎 Langganan Premium 
+
+                    </button>
+
+                </div>
+
+            </div>
+            
+
+        </section>
+
+        <!-- PRICING -->
+        <section class="pricing">
+
+            <h2>Pilih Akses</h2>
+
+            <div class="pricing-cards">
+
+                <div class="price-card free">
+                    <h3>FREE LITE</h3>
+                    <p>1 paket latihan dasar (J.TEST written & listening)</p>
+                    <span>Rp 0</span>
+
+                    <button onclick="startFreeTrial()">
+                        Mulai Gratis
+                    </button>
+                </div>
+
+                <div class="price-card pro popular">
+                    <h3>💎 PREMIUM</h3>
+                    <p>Unlimited 1 bulan + serifikat</p>
+
+                    <span>
+                        Rp 129.000
+                    </span>
+
+                    <button onclick="buyPlan('premium', 129000)">
+                        Beli PREMIUM
+                    </button>
+                </div>
+
+                <!-- <div class="price-card premium">
+                    <h3>🎧 Full Exam</h3>
+                    <p>3 bulan + Sertifikat</p>
+
+                    <span>Rp 129.000</span>
+
+                    <button onclick="buyPlan('premium', 129000)">
+                        Beli PREMIUM
+                    </button>
+                </div>
+
+                <div class="price-card lifetime">
+                    <h3>👑 LIFETIME</h3>
+                    <p>Akses selamanya</p>
+
+                    <span>Rp 299.000</span>
+
+                    <button onclick="buyPlan('lifetime', 299000)">
+                        Lifetime
+                    </button>
+                </div> -->
+
+            </div>
+
+        </section>
+
+        <!-- LOGIN -->
+        <section class="login">
+
+            <h2>Login / Register</h2>
+
+            <div id="g_id_onload"
+                data-client_id="427555562472-ptt0e991t8tvd3ueh04go4echgarad24.apps.googleusercontent.com"
+                data-callback="handleGoogleLogin" data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin" data-type="standard">
+            </div>
+
+        </section>
+
+        <!-- TESTIMONI -->
+        <section class="testimoni">
+
+            <h2>❤️ Testimoni Siswa</h2>
+
+            <div class="testimoni-grid">
+
+                <div class="testi-item">
+                    <img src="assets/images/testimoni/rina.jpg" alt="Rina">
+
+                    <p>
+                        "Lulus N5 skor 85%!
+                        Terima kasih Nihongo Mastery 🔥"
+                    </p>
+
+                    <strong>- Rina, Jakarta</strong>
+                </div>
+
+                <div class="testi-item">
+                    <img src="assets/images/testimoni/budi.jpg" alt="Budi">
+
+                    <p>
+                        "JFT Basic full score!
+                        Materi listeningnya top banget!"
+                    </p>
+
+                    <strong>- Budi, Surabaya</strong>
+                </div>
+
+                <div class="testi-item">
+                    <img src="assets/images/testimoni/sari.jpg" alt="Sari">
+
+                    <p>
+                        "Upgrade PRO hemat 40%,
+                        unlimited exam. Worth it!"
+                    </p>
+
+                    <strong>- Sari, Bandung</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- DEVELOPER -->
+        <section class="developer-profile">
+
+            <h2>👨‍💻 Dibuat oleh</h2>
+
+            <div class="dev-card">
+
+                <img src="assets/images/developer/jauhari.jpg" alt="Jauhari Saputra" class="dev-avatar">
+
+                <div class="dev-info">
+
+                    <h3>Jauhari Saputra</h3>
+
+                    <p>
+                        Pengembang Nihongo Mastery |
+                        Informatika Universitas Siber Asia |
+                        Spesialis LMS Bahasa Jepang
+                        untuk visa TG Jepang.
+                    </p>
+
+                    <small>
+                        5+ tahun pengalaman mengajar Jepang online
+                        & fullstack PHP/MySQL/JavaScript.
+                    </small>
+
+                    <div class="dev-links">
+
+                        <a href="mailto:saputrajauhari064@gmail.com">
+                            📧 Email
+                        </a>
+
+                        <a href="https://jauharisaputra.github.io/jayadi-daichi-quiz/index.html" target="_blank">
+
+                            💻 GitHub
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script>
+    function startFreeTrial() {
+        window.location.href =
+            'exam.html?path=jlpt/n5/written/v1-lite&user=3';
+    }
+
+    function selectExam(examPath) {
+
+        console.log('Selected:', examPath);
+
+        if (examPath.startsWith('jlpt/n5') ||
+            examPath.startsWith('jft/basic')) {
+
+            window.location.href =
+                `exam.html?path=${examPath}&user=3`;
+        } else if (examPath.includes('jtest')) {
+
+            if (confirm('J.TEST Premium (Rp 25.000)?')) {
+
+                window.location.href =
+                    `exam.html?path=${examPath}&user=3`;
+            }
+        }
+    }
+
+
+
+    console.log('✅ Nihongo Mastery Ready!');
+    // ========================================
+
+
+// FAKE LIVE NOTIFICATION
+// ========================================
+
+const fakeNotifData = [
+
+    {
+        name: 'Yenni',
+        city: 'Jakarta',
+        action: 'baru saja upgrade ke PREMIUM 💎',
+        icon: '🔥',
+        time: '1 menit lalu'
+    },
+
+    {
+        name: 'Rina',
+        city: 'Bandung',
+        action: 'unlock Full Exam JLPT N5 🎧',
+        icon: '🎌',
+        time: '3 menit lalu'
+    },
+
+    {
+        name: 'Andi',
+        city: 'Surabaya',
+        action: 'membeli paket LIFETIME 👑',
+        icon: '👑',
+        time: '5 menit lalu'
+    },
+
+    {
+        name: 'Sari',
+        city: 'Medan',
+        action: 'lulus JLPT N4 setelah latihan 🔥',
+        icon: '🎉',
+        time: '8 menit lalu'
+    },
+
+    {
+        name: 'Kevin',
+        city: 'Pontianak',
+        action: 'upgrade ke PRO hemat 40%',
+        icon: '⚡',
+        time: '10 menit lalu'
+    },
+
+    {
+        name: 'Budi',
+        city: 'Makassar',
+        action: 'baru mulai FREE LITE 🚀',
+        icon: '🚀',
+        time: '12 menit lalu'
+    }
+
+];
+
+const liveNotif = document.getElementById('liveNotif');
+
+function showFakeNotif() {
+
+    const data =
+        fakeNotifData[
+            Math.floor(
+                Math.random() *
+                fakeNotifData.length
+            )
+        ];
+
+    document.querySelector('.live-notif-icon')
+        .innerHTML = data.icon;
+
+    document.getElementById('notifTitle')
+        .innerHTML =
+        `${data.name} dari ${data.city}`;
+
+    document.getElementById('notifMessage')
+        .innerHTML = data.action;
+
+    document.getElementById('notifTime')
+        .innerHTML = data.time;
+
+    liveNotif.classList.add('show');
+
+    setTimeout(() => {
+        liveNotif.classList.remove('show');
+    }, 5000);
+}
+
+// pertama muncul
+setTimeout(showFakeNotif, 2500);
+
+// muncul terus random
+setInterval(() => {
+
+    showFakeNotif();
+
+}, 12000);
+    </script>
+    <!-- LIVE SALES NOTIFICATION -->
+<div class="live-notif" id="liveNotif">
+
+    <div class="live-notif-icon">
+        🔥
+    </div>
+
+    <div class="live-notif-content">
+
+        <strong id="notifTitle">
+            Yenni dari Jakarta
+        </strong>
+
+        <p id="notifMessage">
+            baru saja upgrade ke PREMIUM
+        </p>
+
+        <div class="live-notif-time" id="notifTime">
+            2 menit lalu
+        </div>
+
+    </div>
+
+</div>
+</body>
+
+</html>
+
 === assets/js/main.js ===
 console.log('🚀 Nihongo Mastery JS v5.0 - FULLY FIXED');
 

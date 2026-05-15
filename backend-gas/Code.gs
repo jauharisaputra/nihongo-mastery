@@ -1,7 +1,7 @@
 // ========================================
 // NIHONGO MASTERY - GOOGLE APPS SCRIPT API
 // FINAL FIXED VERSION 2026
-// RESULTS + PAYMENTS + ADMIN SECURITY
+// RESULTS + PAYMENTS + MEMBERSHIP
 // ========================================
 
 // ========================================
@@ -36,16 +36,17 @@ function handleRequest(e) {
     // ========================================
     // GET PARAMS
     // ========================================
-    if (e.parameter) {
+    if (e && e.parameter) {
 
       data = e.parameter;
 
     }
 
     // ========================================
-    // POST JSON
+    // POST JSON BODY
     // ========================================
     if (
+      e &&
       e.postData &&
       e.postData.contents
     ) {
@@ -53,7 +54,9 @@ function handleRequest(e) {
       try {
 
         const jsonData =
-          JSON.parse(e.postData.contents);
+          JSON.parse(
+            e.postData.contents
+          );
 
         data = {
           ...data,
@@ -75,6 +78,9 @@ function handleRequest(e) {
       JSON.stringify(data)
     );
 
+    // ========================================
+    // ACTION
+    // ========================================
     const action =
       String(
         data.action ||
@@ -87,13 +93,16 @@ function handleRequest(e) {
       action
     );
 
+    // ========================================
+    // OPEN SPREADSHEET
+    // ========================================
     const ss =
       SpreadsheetApp.openById(
         SHEET_ID
       );
 
     // ========================================
-    // ROUTING
+    // ROUTER
     // ========================================
     switch (action) {
 
@@ -111,7 +120,17 @@ function handleRequest(e) {
         });
 
       // ========================================
-      // REGISTER USER
+      // MEMBERSHIP
+      // ========================================
+      case 'membership':
+
+        return getMembership(
+          ss,
+          data.user_id
+        );
+
+      // ========================================
+      // REGISTER
       // ========================================
       case 'register':
 
@@ -188,20 +207,21 @@ function handleRequest(e) {
         return jsonResponse({
 
           success: false,
-          error: 'Invalid action'
+          error: 'Invalid action',
+          received_action: action
 
         });
 
     }
 
-  } catch (error) {
+  } catch (err) {
 
-    console.error(error);
+    console.error(err);
 
     return jsonResponse({
 
       success: false,
-      error: error.toString()
+      error: err.toString()
 
     });
 
@@ -217,12 +237,12 @@ function registerUser(
   data
 ) {
 
-  const userSheet =
+  const sheet =
     ss.getSheetByName(
       'users'
     );
 
-  if (!userSheet) {
+  if (!sheet) {
 
     return jsonResponse({
 
@@ -234,18 +254,22 @@ function registerUser(
 
   }
 
-  const users =
-    userSheet
+  const rows =
+    sheet
     .getDataRange()
     .getValues();
 
   const email =
-    String(data.email || '')
+    String(
+      data.email || ''
+    )
     .trim()
     .toLowerCase();
 
   const name =
-    String(data.name || 'User');
+    String(
+      data.name || 'User'
+    );
 
   // ========================================
   // VALIDATE EMAIL
@@ -269,12 +293,14 @@ function registerUser(
   // ========================================
   for (
     let i = 1;
-    i < users.length;
+    i < rows.length;
     i++
   ) {
 
     const existingEmail =
-      String(users[i][1] || '')
+      String(
+        rows[i][1] || ''
+      )
       .trim()
       .toLowerCase();
 
@@ -288,17 +314,21 @@ function registerUser(
         existing: true,
 
         user_id:
-          users[i][0],
+          rows[i][0],
 
         email:
-          users[i][1],
+          rows[i][1],
 
         name:
-          users[i][2],
+          rows[i][2],
 
         role:
-          users[i][3] ||
-          'student'
+          getUserRole(
+            rows[i]
+          ),
+
+        premium_expired:
+          rows[i][4] || ''
 
       });
 
@@ -314,12 +344,13 @@ function registerUser(
     .getUuid()
     .slice(0, 8);
 
-  userSheet.appendRow([
+  sheet.appendRow([
 
     userId,
     email,
     name,
-    'student',
+    'free',
+    '',
     new Date()
 
   ]);
@@ -339,7 +370,10 @@ function registerUser(
       name,
 
     role:
-      'student'
+      'free',
+
+    premium_expired:
+      ''
 
   });
 
@@ -353,12 +387,12 @@ function checkUser(
   email
 ) {
 
-  const userSheet =
+  const sheet =
     ss.getSheetByName(
       'users'
     );
 
-  if (!userSheet) {
+  if (!sheet) {
 
     return jsonResponse({
 
@@ -370,8 +404,8 @@ function checkUser(
 
   }
 
-  const users =
-    userSheet
+  const rows =
+    sheet
     .getDataRange()
     .getValues();
 
@@ -382,12 +416,14 @@ function checkUser(
 
   for (
     let i = 1;
-    i < users.length;
+    i < rows.length;
     i++
   ) {
 
     const existingEmail =
-      String(users[i][1] || '')
+      String(
+        rows[i][1] || ''
+      )
       .trim()
       .toLowerCase();
 
@@ -401,17 +437,21 @@ function checkUser(
         success: true,
 
         user_id:
-          users[i][0],
+          rows[i][0],
 
         email:
-          users[i][1],
+          rows[i][1],
 
         name:
-          users[i][2],
+          rows[i][2],
 
         role:
-          users[i][3] ||
-          'student'
+          getUserRole(
+            rows[i]
+          ),
+
+        premium_expired:
+          rows[i][4] || ''
 
       });
 
@@ -422,7 +462,83 @@ function checkUser(
   return jsonResponse({
 
     success: false,
-    error: 'User not found'
+    error:
+      'User not found'
+
+  });
+
+}
+
+// ========================================
+// MEMBERSHIP
+// ========================================
+function getMembership(
+  ss,
+  userId
+) {
+
+  const sheet =
+    ss.getSheetByName(
+      'users'
+    );
+
+  if (!sheet) {
+
+    return jsonResponse({
+
+      success: false,
+      error:
+        'Sheet users not found'
+
+    });
+
+  }
+
+  const rows =
+    sheet
+    .getDataRange()
+    .getValues();
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][0]) ===
+      String(userId)
+    ) {
+
+      return jsonResponse({
+
+        success: true,
+
+        user_id:
+          rows[i][0],
+
+        name:
+          rows[i][2],
+
+        role:
+          getUserRole(
+            rows[i]
+          ),
+
+        premium_expired:
+          rows[i][4] || ''
+
+      });
+
+    }
+
+  }
+
+  return jsonResponse({
+
+    success: false,
+    error:
+      'User not found'
 
   });
 
@@ -436,12 +552,12 @@ function saveResult(
   data
 ) {
 
-  const resultSheet =
+  const sheet =
     ss.getSheetByName(
       'results'
     );
 
-  if (!resultSheet) {
+  if (!sheet) {
 
     return jsonResponse({
 
@@ -458,13 +574,20 @@ function saveResult(
     .getUuid()
     .slice(0, 8);
 
-  resultSheet.appendRow([
+  sheet.appendRow([
 
     resultId,
 
-    data.user_id || '',
+    String(
+      data.user_id || ''
+    ),
 
-    data.exam_path || '',
+    String(
+      data.exam_path ||
+      data.path ||
+      data.exam ||
+      ''
+    ),
 
     Number(
       data.score || 0
@@ -499,12 +622,12 @@ function getResults(
   userId
 ) {
 
-  const resultSheet =
+  const sheet =
     ss.getSheetByName(
       'results'
     );
 
-  if (!resultSheet) {
+  if (!sheet) {
 
     return jsonResponse({
 
@@ -517,7 +640,7 @@ function getResults(
   }
 
   const rows =
-    resultSheet
+    sheet
     .getDataRange()
     .getValues();
 
@@ -530,7 +653,9 @@ function getResults(
   ) {
 
     const rowUserId =
-      String(rows[i][1] || '');
+      String(
+        rows[i][1] || ''
+      );
 
     if (
       rowUserId ===
@@ -569,15 +694,19 @@ function getResults(
   }
 
   // ========================================
-  // SORT TERBARU
+  // SORT NEWEST FIRST
   // ========================================
   results.reverse();
 
   return jsonResponse({
 
     success: true,
-    total: results.length,
-    results: results
+
+    total:
+      results.length,
+
+    results:
+      results
 
   });
 
@@ -599,12 +728,12 @@ function submitPayment(
 
   try {
 
-    const paymentSheet =
+    const sheet =
       ss.getSheetByName(
         'payments'
       );
 
-    if (!paymentSheet) {
+    if (!sheet) {
 
       return jsonResponse({
 
@@ -616,29 +745,115 @@ function submitPayment(
 
     }
 
-    const amount =
-      Number(
-        data.amount || 0
-      );
+    const orderId =
+      String(
+        data.order_id || ''
+      ).trim();
 
-    if (amount <= 0) {
+    if (!orderId) {
 
       return jsonResponse({
 
         success: false,
         error:
-          'Invalid amount'
+          'Order ID kosong'
 
       });
 
     }
 
+    const rows =
+      sheet
+      .getDataRange()
+      .getValues();
+
+    // ========================================
+    // UPDATE EXISTING PAYMENT
+    // ========================================
+    for (
+      let i = 1;
+      i < rows.length;
+      i++
+    ) {
+
+      const existingOrderId =
+        String(
+          rows[i][4] || ''
+        ).trim();
+
+      if (
+        existingOrderId ===
+        orderId
+      ) {
+
+        sheet
+          .getRange(i + 1, 2)
+          .setValue(
+            data.user_id || ''
+          );
+
+        sheet
+          .getRange(i + 1, 3)
+          .setValue(
+            data.plan || 'premium'
+          );
+
+        sheet
+          .getRange(i + 1, 4)
+          .setValue(
+            Number(
+              data.amount || 0
+            )
+          );
+
+        sheet
+          .getRange(i + 1, 6)
+          .setValue(
+            'pending'
+          );
+
+        if (data.proof) {
+
+          sheet
+            .getRange(i + 1, 7)
+            .setValue(
+              data.proof
+            );
+
+        }
+
+        sheet
+          .getRange(i + 1, 8)
+          .setValue(
+            new Date()
+          );
+
+        return jsonResponse({
+
+          success: true,
+          updated: true,
+
+          order_id:
+            orderId,
+
+          status:
+            'pending'
+
+        });
+
+      }
+
+    }
+
+    // ========================================
+    // CREATE NEW PAYMENT
+    // ========================================
     const paymentId =
       Utilities
       .getUuid()
       .slice(0, 8);
 
-    paymentSheet.appendRow([
+    sheet.appendRow([
 
       paymentId,
 
@@ -646,9 +861,11 @@ function submitPayment(
 
       data.plan || 'premium',
 
-      amount,
+      Number(
+        data.amount || 0
+      ),
 
-      data.order_id || '',
+      orderId,
 
       'pending',
 
@@ -661,8 +878,16 @@ function submitPayment(
     return jsonResponse({
 
       success: true,
-      payment_id: paymentId,
-      status: 'pending'
+      created: true,
+
+      payment_id:
+        paymentId,
+
+      order_id:
+        orderId,
+
+      status:
+        'pending'
 
     });
 
@@ -693,7 +918,8 @@ function approvePayment(
     return jsonResponse({
 
       success: false,
-      error: 'Unauthorized'
+      error:
+        'Unauthorized'
 
     });
 
@@ -724,19 +950,20 @@ function approvePayment(
 
   }
 
+  const orderId =
+    String(
+      data.order_id || ''
+    ).trim();
+
   const payments =
     paymentSheet
     .getDataRange()
     .getValues();
 
-  const orderId =
-    data.order_id || '';
-
   let userId = '';
-  let plan = 'premium';
 
   // ========================================
-  // UPDATE PAYMENT
+  // UPDATE PAYMENT STATUS
   // ========================================
   for (
     let i = 1;
@@ -744,8 +971,13 @@ function approvePayment(
     i++
   ) {
 
+    const currentOrderId =
+      String(
+        payments[i][4] || ''
+      ).trim();
+
     if (
-      payments[i][4] ==
+      currentOrderId ===
       orderId
     ) {
 
@@ -756,10 +988,9 @@ function approvePayment(
         );
 
       userId =
-        payments[i][1];
-
-      plan =
-        payments[i][2];
+        String(
+          payments[i][1] || ''
+        );
 
       break;
 
@@ -780,7 +1011,7 @@ function approvePayment(
   }
 
   // ========================================
-  // UPDATE USER ROLE
+  // UPDATE USER PREMIUM
   // ========================================
   const users =
     userSheet
@@ -793,14 +1024,39 @@ function approvePayment(
     i++
   ) {
 
+    const currentUserId =
+      String(
+        users[i][0] || ''
+      );
+
     if (
-      users[i][0] ==
+      currentUserId ===
       userId
     ) {
 
+      // ========================================
+      // PREMIUM 30 DAYS
+      // ========================================
+      const expired =
+        new Date();
+
+      expired.setDate(
+        expired.getDate() + 30
+      );
+
+      // ROLE
       userSheet
         .getRange(i + 1, 4)
-        .setValue(plan);
+        .setValue(
+          'premium'
+        );
+
+      // EXPIRED DATE
+      userSheet
+        .getRange(i + 1, 5)
+        .setValue(
+          expired
+        );
 
       break;
 
@@ -808,12 +1064,23 @@ function approvePayment(
 
   }
 
+  SpreadsheetApp.flush();
+
   return jsonResponse({
 
     success: true,
-    user_id: userId,
-    role: plan,
-    order_id: orderId
+
+    order_id:
+      orderId,
+
+    user_id:
+      userId,
+
+    role:
+      'premium',
+
+    status:
+      'approved'
 
   });
 
@@ -838,18 +1105,19 @@ function getPendingPayments(
     return jsonResponse({
 
       success: false,
-      error: 'Unauthorized'
+      error:
+        'Unauthorized'
 
     });
 
   }
 
-  const paymentSheet =
+  const sheet =
     ss.getSheetByName(
       'payments'
     );
 
-  if (!paymentSheet) {
+  if (!sheet) {
 
     return jsonResponse({
 
@@ -861,51 +1129,55 @@ function getPendingPayments(
 
   }
 
-  const payments =
-    paymentSheet
+  const rows =
+    sheet
     .getDataRange()
     .getValues();
 
-  let result = [];
+  let payments = [];
 
   for (
     let i = 1;
-    i < payments.length;
+    i < rows.length;
     i++
   ) {
 
-    if (
+    const status =
       String(
-        payments[i][5]
-      ) === 'pending'
+        rows[i][5] || ''
+      );
+
+    if (
+      status ===
+      'pending'
     ) {
 
-      result.push({
+      payments.push({
 
         id:
-          payments[i][0],
+          rows[i][0],
 
         user_id:
-          payments[i][1],
+          rows[i][1],
 
         plan:
-          payments[i][2],
+          rows[i][2],
 
         amount:
-          payments[i][3],
+          rows[i][3],
 
         order_id:
-          payments[i][4],
+          rows[i][4],
 
         status:
-          payments[i][5],
+          rows[i][5],
 
         proof:
-          payments[i][6],
+          rows[i][6] || '',
 
         date:
           formatDate(
-            payments[i][7]
+            rows[i][7]
           )
 
       });
@@ -917,7 +1189,12 @@ function getPendingPayments(
   return jsonResponse({
 
     success: true,
-    payments: result
+
+    total:
+      payments.length,
+
+    payments:
+      payments
 
   });
 
@@ -950,13 +1227,73 @@ function formatDate(
 }
 
 // ========================================
+// GET USER ROLE
+// ========================================
+function getUserRole(
+  userRow
+) {
+
+  const role =
+    String(
+      userRow[3] || 'free'
+    );
+
+  const expired =
+    userRow[4];
+
+  // ========================================
+  // NOT PREMIUM
+  // ========================================
+  if (
+    role !== 'premium'
+  ) {
+
+    return 'free';
+
+  }
+
+  // ========================================
+  // NO EXPIRED DATE
+  // ========================================
+  if (!expired) {
+
+    return 'free';
+
+  }
+
+  // ========================================
+  // CHECK DATE
+  // ========================================
+  const today =
+    new Date();
+
+  const expDate =
+    new Date(expired);
+
+  today.setHours(
+    0, 0, 0, 0
+  );
+
+  expDate.setHours(
+    0, 0, 0, 0
+  );
+
+  return expDate >= today
+    ? 'premium'
+    : 'free';
+
+}
+
+// ========================================
 // JSON RESPONSE
 // ========================================
-function jsonResponse(obj) {
+function jsonResponse(
+  data
+) {
 
   return ContentService
     .createTextOutput(
-      JSON.stringify(obj)
+      JSON.stringify(data)
     )
     .setMimeType(
       ContentService
